@@ -79,7 +79,15 @@ def sw_index_spot(level="L1") -> pd.DataFrame:
         result.extend(data["root"])
     temp_df = pd.DataFrame(result)
     temp_df["L2"] = temp_df["L2"].str.strip()
-    temp_df.columns = ["index_code", "index_name", "pre_close", "open", "amount", "high", "low", "close", "vol"]
+    temp_df.columns = ["index_code", "index_name", "pre_close", "open", "amount", "high", "low", "close", "volume"]
+    temp_df["pre_close"] = pd.to_numeric(temp_df["pre_close"])
+    temp_df["open"] = pd.to_numeric(temp_df["open"])
+    temp_df["high"] = pd.to_numeric(temp_df["high"])
+    temp_df["low"] = pd.to_numeric(temp_df["low"])
+    temp_df["amount"] = pd.to_numeric(temp_df["amount"])
+    temp_df["close"] = pd.to_numeric(temp_df["close"])
+    temp_df["volume"] = pd.to_numeric(temp_df["volume"])
+    temp_df['change_pct'] = 100 * (temp_df['close'] / temp_df['pre_close'] -1 )
     return temp_df.round(2)
 
 

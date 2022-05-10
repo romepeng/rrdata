@@ -1,2 +1,0 @@
-from .fetch_swl_index_spot import sw_index_spot
-from .fetch_sw_index_daily import sw_index_daily_indicater, sw_index_daily
