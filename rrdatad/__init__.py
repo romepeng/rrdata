@@ -1,4 +1,4 @@
-from rrdatad.api import (stock,
+from rrdata.api import (stock,
                   index)
 
 
