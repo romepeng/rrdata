@@ -261,7 +261,7 @@ def sw_index_daily_indicator(
 
 
 if  __name__ ==  "__main__":
-    daily = sw_index_daily(symbol="801010", start_date="2022-04-01", end_date="2022-05-09")
+    daily = sw_index_daily(symbol="801995", start_date="2022-04-01", end_date="2022-05-11")
     print(daily)
     indicator = sw_index_daily_indicator(symbol="801010", start_date="2022-04-01", end_date="2022-05-09")
     print(indicator)	

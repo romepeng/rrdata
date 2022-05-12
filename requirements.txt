@@ -1,0 +1,4 @@
+sqlalchemy
+psgcopy2-binary
+pandas
+numpy

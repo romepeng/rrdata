@@ -1,4 +1,5 @@
 # coding: utf-8
+from turtle import clear
 import requests
 import json
 import time
@@ -88,13 +89,22 @@ def sw_index_spot(level="L1") -> pd.DataFrame:
     temp_df["close"] = pd.to_numeric(temp_df["close"])
     temp_df["volume"] = pd.to_numeric(temp_df["volume"])
     temp_df['change_pct'] = 100 * (temp_df['close'] / temp_df['pre_close'] -1 )
+    temp_df = temp_df.sort_values(by='change_pct', ascending=False)
     return temp_df.round(2)
 
 
 if __name__ == '__main__':
-    print(sw_index_spot(level="L1"))
-    print(sw_index_spot(level="L2"))
-    pass
+    #print(sw_index_spot(level="L1"))
+    import datetime
+    import time
+
+    while 1:
+        print('swl_L2_spot: \n')
+        print(sw_index_spot(level="L2"))
+        
+        print(datetime.datetime.now())
+        time.sleep(20)
+    
 
 
 
