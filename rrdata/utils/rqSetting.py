@@ -36,14 +36,14 @@ class rq_Setting():
             try:
                 res = config.get('POSTGRESQL', 'uri')
             except:
-                res = DEFAULT_DB_URI
+                res =POSTGRESQL_URI
         else:
             config = configparser.ConfigParser()
             config.add_section('POSTGRESQL')
-            config.set('POSTGRESQL', 'uri', DEFAULT_DB_URI)
+            config.set('POSTGRESQL', 'uri',POSTGRESQL_URI)
             f = open('{}{}{}'.format(setting_path, os.sep, 'config.ini'), 'w')
             config.write(f)
-            res = DEFAULT_DB_URI
+            res =POSTGRESQL_URI
         return res
 
     def get_config(self,

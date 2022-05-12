@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from operator import index
 import time
 import pandas as pd
 import psycopg2
@@ -41,8 +42,6 @@ def create_psqlDB(db_name=None):
         except (Exception, psycopg2.DatabaseError) as error:
             print('Error while create PostgresSQL database', error)
 
-
-
 class PgsqlClass(ConSqlDb):
     """ postgresql operation:
         first connect database uri from config.json;
@@ -57,15 +56,19 @@ class PgsqlClass(ConSqlDb):
         # self.engine = create_engine(f'postgresql+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}')
 
 
-    def client_psqlDB(self, db_name):
-        client = create_engine(f'postgresql+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}/{db_name}')
-        print(client)
+    def client_pgsql(self, db_name):
+        client = psycopg2.connect(user='postgres',
+                                    database=db_name,
+                                    password=self.password,
+                                    host=self.host, 
+                                    port=self.port)
+        #client = create_engine(f'postgres+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}/{db_name}')
         return client
 
 
     def create_table(self, db_name, table_name, tsql):
         try:
-            conn = self.client_psqlDB(db_name=db_name)
+            conn = self.client_pgsql(db_name=db_name)
             cursor = conn.cursor()
             conn.autocommit = True
             cursor.execute(f"DROP TABLE if EXISTS {table_name}")
@@ -78,35 +81,43 @@ class PgsqlClass(ConSqlDb):
 
     def insert_to_psql(self, df,db_name, table_name, if_exists='append'):
         try:
-            engine = self.client_psqlDB(db_name)
+            engine = self.client_pgsql(db_name)
             df.to_sql(name=table_name, con=engine, index=False, if_exists=if_exists)
             print(f'write to database:{db_name} table:{table_name} ok !')
         except Exception as e:
             print(e)
 
 
+    def save_df_to_pgsql(self, df, table_name, db_name, if_exists='replace'):
+        engine = self.client_pgsql(db_name)
+        df.to_sql(table_name,client=engine,index=False,if_exists=if_exists)
+
+
     def read_psql(self, db_name, table_name):
-        engine = self.client_psqlDB(db_name=db_name)
+        engine = self.client_pgsql(db_name=db_name)
         return pd.read_sql_table(table_name,engine)
 
 
-def client_pgsql(database=''):
+
+def client_pgsql(database='rrdata'):
     try:
-        return PgsqlClass().client_psqlDB(db_name=database)
+        client = create_engine(f'postgresql+psycopg2://postgres:{password_pgsql}@{host_db_ip}:{port_psql}/{database}')
+        return client
     except Exception as e:
         print(e)     
 
 
-def save_data_to_postgresql(data,table_name,client=client_pgsql(),if_exists='replace'):
-    data.to_sql(table_name,client,index=False,if_exists=if_exists)
+def save_data_to_postgresql(data,table_name,db_name,if_exists='replace'):
+    client = client_pgsql(database=db_name)
+    data.to_sql(table_name=table_name,client=client,index=False,if_exists=if_exists)
     
 
-def load_data_from_postgresql(mes='',client=client_pgsql()):
+def load_data_from_postgresql(mes='',client=client_pgsql("rrdata")):
     res=pd.read_sql(mes,client)
     return res
 
 
-def read_data_from_pg(table_name='', client=client_pgsql()):
+def read_data_from_pg(table_name='', client=client_pgsql("rrdata")):
     ''' load all data of table_name
     '''
     res = pd.read_sql_table(table_name, client)
@@ -167,10 +178,10 @@ def read_unique_data_from_pg(cols='*',table_name='',period=1, client=client_pgsq
 
 if __name__ == '__main__':
     import os
-    #create_psqlDB("rrdata")
+    #create_psqlDB("rralpha")
 
     psql = PgsqlClass()
-    psql.create_table('rrdata','swl_list', '')
+    #psql.create_table('rrdata','swl_list', '')
    
     
     """
@@ -183,9 +194,9 @@ if __name__ == '__main__':
     print(tsql)
     psql.create_table('rrdata','stock_day',tsql)
     """
-    psql2 = PgsqlClass()
+    #psql2 = PgsqlClass()
     #print(id(psql), id(psql2))
-    psql.client_psqlDB(db_name='rrdata')
+    #psql.client_pgsql(db_name='rrdata')
     
     #print(read_data_from_pg('swl_list'))
 

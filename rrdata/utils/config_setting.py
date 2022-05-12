@@ -1,7 +1,7 @@
 import json
 import os , sys, platform,shutil, cmd
 
-from rqSingleton import Singleton, Singleton_wraps
+from rrdata.utils.rqSingleton import Singleton, Singleton_wraps
 
 # diffrence OS path
 path = os.path.expanduser('~')
@@ -32,6 +32,7 @@ class Setting(object):
 
 setting = Setting().setting()
 #print(setting)
+
 
 if __name__ == '__main__':
     s = Setting()

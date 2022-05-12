@@ -1,4 +1,8 @@
 sqlalchemy
-psgcopy2-binary
+psycopg2-binary
 pandas
 numpy
+tushare
+asyncpg
+asyncio
+
