@@ -18,3 +18,4 @@ def read_df_from_table(table_name, engine=engine):
 
 if __name__ == '__main__':
     read_df_from_table('swl_list', engine)
+    read_df_from_table('swl_spot_L2', engine)
