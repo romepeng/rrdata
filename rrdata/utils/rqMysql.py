@@ -8,33 +8,35 @@ import numpy as np
 import pandas as pd
 import pymysql
 from sqlalchemy import create_engine
-from rrshare.rqUtil.config_setting import setting
-from rrshare.rqUtil.rqDate_trade import (rq_util_get_last_tradedate, rq_util_get_pre_trade_date)
+from rrdata.utils.config_setting import setting
+from rrdata.utils.rqDate_trade import (rq_util_get_last_tradedate, rq_util_get_pre_trade_date)
 
 logging.basicConfig(level=logging.DEBUG,format=' %(asctime)s-%(levelname)s-%(message)s ')
 
-db_mysql ='rrshare'
+db_mysql ='rrdata'
 user_mysql = 'root'
 password_mysql = setting['MYSQL_PASSWORD']
+host_mysql = '39.108.68.163'
 
 logging.info(user_mysql)
 logging.debug(password_mysql)
 
 
-def conn_mysql(host="127.0.0.1", user=user_mysql,passwd=password_mysql,port=3306):
+def conn_mysql(host=host_mysql, user=user_mysql,passwd=password_mysql,port=3306): #TODO
     return pymysql.connect(host=host, user=user,passwd=passwd,port=port,charset='utf8')
+
 #logging.warning(conn_mysql())
 
-def conn_mysqldb(db=db_mysql,host="127.0.0.1", user=user_mysql,passwd=password_mysql,port=3306):
+def conn_mysqldb(db=db_mysql,host=host_mysql, user=user_mysql,passwd=password_mysql,port=3306):
     return pymysql.connect(host=host, user=user,passwd=passwd,database=db,port=port,charset='utf8')
-#logging.info(conn_mysqldb('test_rrshare'))
+#logging.info(conn_mysqldb('test_rrdata'))
 
-def mysql_engine(db=db_mysql,host="127.0.0.1",user=user_mysql,passwd=password_mysql,port=3306):
+def mysql_engine(db=db_mysql,host=host_mysql,user=user_mysql,passwd=password_mysql,port=3306):
     try:
         return create_engine(f'mysql+pymysql://{user}:{passwd}@{host}:{port}/{db}',encoding='utf8')
     except Exception as e:
         print(e)
-#logging.warning(mysql_engine('test_rrshare'))
+#logging.warning(mysql_engine('test_rrdata'))
 
 
 def mysql_conn(db=db_mysql):
@@ -108,7 +110,7 @@ def read_mysql_sql(data: Union[str,list,tuple] = None,
         return df
     except Exception as e:
         logging.error(e)
-#read_mysql_sql('select name,close from realtime_price', 'realtime_price','test_rrshare' )
+#read_mysql_sql('select name,close from realtime_price', 'realtime_price','test_rrdata' )
 
 
 def read_mysql_select(secs, db, table,N):
@@ -148,12 +150,12 @@ if __name__ == '__main__':
     sql = ''.join(['SELECT ', data,  ' FROM ', f'{table}'])
     logging.info(sql)
     """
-    #mysql_conn('test_rrshare')
-    #mysql_create_table(sql,'stock_day','test_rrshare')
-    read_mysql_sql(data='name,pro_close,close,date,time',table='realtime_price',db='test_rrshare' )
+    #mysql_conn('test_rrdata')
+    #mysql_create_table(sql,'stock_day','test_rrdata')
+    read_mysql_sql(data='name,pro_close,close,date,time',table='realtime_price',db='test_rrdata' )
     
     #logging.info(df)
-    #write_to_mysql(df, 'test_rrshare','test')
+    #write_to_mysql(df, 'test_rrdata','test')
     
     #read_mysql_table('gm','stock_day',3)
     #secs = ['SZSE.000001','SHSE.600519'] 

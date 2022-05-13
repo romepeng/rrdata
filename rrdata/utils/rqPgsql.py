@@ -19,6 +19,46 @@ pgsql_uri = setting['POSTGRESQL_URI']
 host_db_ip = setting['IP_DATABASE_ALIYUN']
 port_psql = 5432
 
+class PgsqlOperation(object):
+    """
+    user/password: postgres
+    host_default='127.0.0.1'
+    host_database_server='39.108.68.163'
+    port_default=5432
+    execute:
+    CREATE DATABASE db_name;
+    DROP DATABASE [ IF EXISTS ] db_name;
+    CREATE TABLE table_name(
+   column1 datatype,
+   column2 datatype,
+   .....
+   columnN datatype,
+   PRIMARY KEY( 一个或多个列 )
+);
+    DROP TABLE table_name;
+    PostgreSQL 模式（SCHEMA）:允许多个用户使用一个数据库并且不会互相干扰。
+    CREATE SCHEMA myschema.mytable (
+...
+);
+    create table myschema.table_name()
+    DROP SCHEMA myschema;
+    https://www.runoob.com/postgresql/postgresql-insert-into.html
+
+use sqlalchemy:
+
+from sqlalchemy import create_engine
+engine = create_engine("postgresql+psycopg2://scott:tiger@host/dbname")
+    
+https://docs.sqlalchemy.org/en/14/dialects/postgresql.html
+To set using per-connection execution options:
+
+with engine.connect() as conn:
+    conn = conn.execution_options(
+        isolation_level="REPEATABLE READ"
+    )
+    with conn.begin():
+        # ... work with transaction
+    """
 
 def create_psqlDB(db_name=None):
         try:

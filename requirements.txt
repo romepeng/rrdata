@@ -1,8 +1,11 @@
-sqlalchemy
+configparser
+sqlalchemy>=1.4.36
 psycopg2-binary
 pandas
 numpy
 tushare
 asyncpg
 asyncio
+pymysql
+
 
