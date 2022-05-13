@@ -12,15 +12,17 @@ class PgsqlClass(object):
             db_name=db_name_rrdata
             ):
         self.db_name=db_name
+        self.params =get_config_ini(section=db_name)
+
 
     def create_tables(self, sql):
         """ create tables in the PostgreSQL database"""
         conn = None
         try:
             # read the connection parameters
-            params = get_config_ini(section=self.db_name)
+            #params = get_config_ini(section=self.db_name)
             # connect to the PostgreSQL server
-            with psycopg2.connect(**params) as conn:
+            with psycopg2.connect(**self.params) as conn:
                 rq_util_log_info(conn)
                 cur = conn.cursor()
                 # create table one by one
@@ -34,27 +36,36 @@ class PgsqlClass(object):
             rq_util_log_expection(error)
 
 
-def insert_one(self,sql_one,table_name):
-    pass
+    def insert_one(self,sql_one,table_name):
+        pass
 
 
-def insert_lists(self, sql_lists,table_name):
-    pass
+    def insert_lists(self, sql_lists,table_name):
+        pass
 
 
-def update(self):
-    pass
+    def update(self):
+        pass
 
 
-def fetchone(self):
-    pass
+    def fetchone(self):
+        pass
 
 
-def fetchall(self, table_name='cities'):
-    conn = None
-    try:
+    def fetchall(self, table_name='cities'):
+        conn = None
+        try:
+            with psycopg2.connect(**self.params) as conn:
+                cur = conn.cousor()
+                cur.execute("""
+                
+                """)
+                cur.close()
+                cur.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            rq_util_log_expection(error)
 
-
+    
 
 if  __name__ == '__main__':
     psql = PgsqlClass()

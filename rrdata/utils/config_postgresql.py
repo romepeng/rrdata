@@ -4,7 +4,7 @@ from configparser import ConfigParser
 from rrdata.utils.rqLogs import rq_util_log_info
 from rrdata.utils.config_setting import get_path_file_name
 
-def get_config_ini(section='postgresql',filename='config.ini'):
+def get_config_ini(section='rrdata',filename='config.ini'):
     # create a parser
     parser = ConfigParser()
     # read config file
@@ -20,5 +20,5 @@ def get_config_ini(section='postgresql',filename='config.ini'):
     #rq_util_log_info(db)
     return db
 
-database_uri = get_config_ini()
+database_uri = get_config_ini('pgsql_rrdata')
 rq_util_log_info(database_uri)
