@@ -42,7 +42,7 @@ def sw_index_cons(symbol: str = "801011") -> pd.DataFrame:
     return temp_df
 
 
-def sw_index_leguleu_cons(symbol: str = "851921.SI") -> pd.DataFrame:
+def sw_index_legulegu_cons(symbol: str = "851921.SI") -> pd.DataFrame:
     """
     乐咕乐股-申万一，二，三级-行业成份
     https://legulegu.com/stockdata/index-composition?industryCode=851921.SI
@@ -78,9 +78,13 @@ def sw_index_leguleu_cons(symbol: str = "851921.SI") -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    print(sw_index_cons(symbol="801011"))
-    print(sw_index_cons(symbol="801193"))
-    #print(sw_index_cons("850142.SI"))
+    try:
+        print(sw_index_cons(symbol="801011"))
+        print(sw_index_cons(symbol="801016"))
+        print(sw_index_legulegu_cons("801017.SI"))
+    except:
+        pass
+
 
 
 

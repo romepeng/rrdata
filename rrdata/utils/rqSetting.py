@@ -15,7 +15,7 @@ from rrdata.utils.rqSql import rq_util_sql_postgres_setting, rq_util_sql_async_p
 #print(DEFAULT_POSTGRES)
 #DEFAULT_DB_URI = 'postgresql://{}:5432'.format(DEFAULT_POSTGRES)
 #print(DEFAULT_DB_URI)
-POSTGRESQL_URI = setting["POSTGRESQL_URI"]
+POSTGRESQL_URI = setting["POSTGRESQL"]
 print(POSTGRESQL_URI)
 CONFIGFILE_PATH = '{}{}{}'.format(setting_path, os.sep, 'config.ini')
 print(CONFIGFILE_PATH)
