@@ -26,12 +26,9 @@ def save_index_sw_spot(table_name="swl_spot", level =""):
 
 def  save_index_sw_cons_one_level(table_name='swl_cons',level=""):
     """
-    for - in range(3) -- repeat try
     for leve in SWL_LEVEL().LEVEL get all cons
     table_name = f"table_name_{level}"
-
     important: 
-    
     drop_duplicates(subset=["stock_code"], keep='last', inplace=True)
     """
     dfs =[]
@@ -39,9 +36,10 @@ def  save_index_sw_cons_one_level(table_name='swl_cons',level=""):
         rq_util_log_info(symbol)
         try:
             cons = index.sw_index_legulegu_cons(symbol)
-            #cons.replace("-","NaN", inplace=True)
-            #cons.dropna(how='all', axis=1, inplace=True)
-            #cons.drop_duplicates(subset=['stock_code'], keep='last', inplace=True)
+            cons.replace("-", NaN, inplace=True)
+            cons.dropna(how='all', axis=1, inplace=True)
+            #cons.sort_values(by=['stock_code', 'in_time'], ascending=[True, True], inplace=True)
+            #cons.drop_duplicates(subset=['stock_code'], keep='first', inplace=True)
             rq_util_log_info(cons)
             dfs.append(cons)
             #rq_util_log_info(dfs)
@@ -77,11 +75,12 @@ def save_swl_cons_all_level(table_name='swl_cons_all'):
 
 
 if  __name__ == '__main__':
-    #save_index_sw_class_pgsql()
-    #for l in SWL_LEVEL().LEVEL:
-    save_index_sw_cons_one_level('swl_cons', "L2")
+    save_index_sw_class_pgsql()
+    save_index_sw_spot()
+    for l in SWL_LEVEL().LEVEL:
+        save_index_sw_cons_one_level('swl_cons', l)
         
-    #save_swl_cons_all_level()
+    save_swl_cons_all_level()
     
 
 

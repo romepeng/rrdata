@@ -8,3 +8,4 @@ from .index import (sw_index_spot,
                     )
 """
 from .index import *
+from .stock import *

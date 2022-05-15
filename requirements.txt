@@ -7,5 +7,7 @@ tushare
 asyncpg
 asyncio
 pymysql
-
+streamlit
+openpyxl
+pysnowball
 
