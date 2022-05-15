@@ -4,6 +4,7 @@
 Date: 2022/2/2 23:26
 Desc: 东方财富网-行情首页-沪深京 A 股 
     spot / hist days/ min 
+    hist daily default : ajust:"qfq"
 
 columns_new1 = [
             "no",
@@ -12,7 +13,7 @@ columns_new1 = [
             "close",
             "chg_pct",
             "change",
-            "volume",
+            "vol",
             "amount",
             "amplitude",
             "high",
@@ -121,7 +122,7 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
             "close",
             "chg_pct",
             "change",
-            "volume",
+            "vol",
             "amount",
             "amplitude",
             "high",
@@ -137,7 +138,7 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
     temp_df["close"] = pd.to_numeric(temp_df["close"], errors="coerce")
     temp_df["chg_pct"] = pd.to_numeric(temp_df["chg_pct"], errors="coerce")
     temp_df["change"] = pd.to_numeric(temp_df["change"], errors="coerce")
-    temp_df["volume"] = pd.to_numeric(temp_df["volume"], errors="coerce")
+    temp_df["vol"] = pd.to_numeric(temp_df["vol"], errors="coerce")
     temp_df["amount"] = pd.to_numeric(temp_df["amount"], errors="coerce")
     temp_df["amplitude"] = pd.to_numeric(temp_df["amplitude"], errors="coerce")
     temp_df["high"] = pd.to_numeric(temp_df["high"], errors="coerce")
@@ -228,7 +229,7 @@ def stock_zh_a_hist(
         period: str = "daily",
         start_date: str = "19700101",
         end_date: str = "22220101",
-        adjust: str = "",
+        adjust: str = "qfq",
 ) -> pd.DataFrame:
     """
     东方财富网-行情首页-沪深京 A 股-每日行情
@@ -298,7 +299,7 @@ def stock_zh_a_hist(
         "close",
         "high",
         "low",
-        "volume",
+        "vol",
         "amount",
         "amplitude",
         "chg_pct",
@@ -379,7 +380,7 @@ def stock_zh_a_hist_min_em(
         "close",
         "high",
         "low",
-        "volume",
+        "vol",
         "amount",
         "last"
         ]
@@ -448,9 +449,9 @@ def stock_zh_a_hist_min_em(
         "low",
         "chg_pct",
         "change",
-        "volume",
+        "vol",
         "amount",
-        "amplicute",
+        "amplitude",
         "turnover",
         ]
         return temp_df
@@ -516,7 +517,7 @@ def stock_zh_a_hist_pre_min_em(symbol: str = "000001",
         "close",
         "high",
         "low",
-        "volume",
+        "vol",
         "amount",
         "last"
         ]

@@ -48,6 +48,16 @@ def rq_util_code_tosrccode(code, src=''):  #['joinquant','thushare','gm']
         return ''.join(['SHXE.',code]) if code >= '333333' else ''.join(['SZXE.',code])
     pass
         
+
+def rq_util_str_tounitecode(code):
+    if code.startswith("4") or code.startswith("8"):
+        return ''.join([code, '.BJ'])
+    if code.startswith('6') :
+        return ''.join([code,'.SH'])
+    if code < "333333":
+        return ''.join([code, ".SZ"])
+    pass
+
         
 def rq_util_code_tolist(code, auto_fill=True):
     """
@@ -112,3 +122,6 @@ def rq_util_code_adjust_ctp(code, source):
             return re.search(r'[a-zA-z]+', code)[0] + re.search(r'[0-9]+', code)[0][1:]
         else:
             return re.search(r'[a-zA-z]+', code)[0].lower() + re.search(r'[0-9]+', code)[0]
+
+if  __name__ == "__main__":
+    print(rq_util_str_tounitecode('830226'))
