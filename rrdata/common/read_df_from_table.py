@@ -10,9 +10,13 @@ from rrdata.common import engine, engine_async
 
 
 def read_df_from_table(table_name, con=engine()):
-    df = pd.read_sql(table_name, con)
-    rq_util_log_info(f"read sql from {table_name} \n{df}")
-    return df
+    try:
+        df = pd.read_sql(table_name, con)
+        rq_util_log_info(f"Read dataframe: {len(df)} rows from Table:<{table_name}> from {con} \n{df.tail()}")
+        return df
+    except Exception as e:
+        rq_util_log_expection(e)
+
 
 
 def read_large_df_from_table(sql_query, con=engine()):
@@ -49,4 +53,4 @@ if __name__ == '__main__':
     #sql_query = 'SELECT * FROM swl_list'
     #read_large_df_from_table(sql_query)
     #read_sql_tmpfile(sql_query, engine)
-    read_df_from_table('stock_list', con=engine_async(db_name="rrdata"))
+    read_df_from_table('stock_list', con=engine(db_name="rrdata"))

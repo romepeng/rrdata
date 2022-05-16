@@ -1,3 +1,4 @@
+requests
 configparser
 sqlalchemy>=1.4.36
 psycopg2-binary
@@ -6,8 +7,11 @@ numpy
 tushare
 asyncpg
 asyncio
-pymysql
 streamlit
 openpyxl
 pysnowball
+bs4
+tushare
+
+
 

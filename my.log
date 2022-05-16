@@ -1,0 +1,3 @@
+Mon 16 May 2022 14:19:44 logging_test.py WARNING hello logging warning!
+Mon 16 May 2022 14:19:44 logging_test.py ERROR hello logging error!
+Mon 16 May 2022 14:19:44 logging_test.py CRITICAL logging critical!

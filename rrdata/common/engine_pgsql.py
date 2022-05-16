@@ -10,7 +10,8 @@ from rrdata.utils.rqSetting import setting
 host = setting["IP_DATABASE_ALIYUN"]
 passwd = setting["PGSQL_PASSWORD"]
 database_str = f"postgres:{passwd}@{host}:5432"
-rq_util_log_info(database_str)
+database_dns = f"postgresql://postgres:{passwd}@{host}:5432"
+rq_util_log_info(database_dns)
 
 
 def engine(driver="psycopg2", db_name="rrdata"):
@@ -18,46 +19,29 @@ def engine(driver="psycopg2", db_name="rrdata"):
     if not driver:
         database_uri = f"postgresql://{database_uri_str}"
         #rq_util_log_info(database_uri)
-        cnx = create_engine(database_uri)
-    if driver:
-        cnx = create_engine(f"postgresql+{driver}://{database_str}/{db_name}")
-    return cnx
-
-
-async def engine_async(db_name='rrdata'):
-    engine = create_async_engine(
-        "postgresql+asyncpg://postgres:{passwd}@{host}:5432/{db_name}", echo=True,
-    )
-
-    async with engine.begin() as conn:
-        await conn.run_sync(meta.drop_all)
-        await conn.run_sync(meta.create_all)
-
-        await conn.execute(
-            t1.insert(), [{"name": "some name 1"}, {"name": "some name 2"}]
-        )
-
-    async with engine.connect() as conn:
-
-        # select a Result, which will be delivered with buffered
-        # results
-        result = await conn.execute(select(t1).where(t1.c.name == "some name 1"))
-
-        print(result.fetchall())
-
-    # for AsyncEngine created in function scope, close and
-    # clean-up pooled connections
-    await engine.dispose()
-
-asyncio.run(async_main())
+        conn = create_engine(database_uri)
+    elif driver == "psycopg2":
+        conn = create_engine(f"postgresql+{driver}://{database_str}/{db_name}")
+    return conn
+    
+async def engine_asyncpg(db_name='rrdata"'):
+    """
+           usage:
+        conn = await asyncpg.connect()
+        con = engine_asyncpg(db_name)
+        asyncio.get_event_loop().run_until_complete(func())
+    """
+    return await asyncpg.connect(f"postgresql://{database_str}/{db_name}")
 
 def engine_async(db_name="rrdata"): #TODO
     return create_async_engine(f"postgresql+asyncpg://{database_str}/{db_name}",
-               connect_args={"server_settings": {"jit": "off"}},
+             #  connect_args={"server_settings": {"jit": "off"}},
              )
 
+
 if  __name__ == "__main__":
-    rq_util_log_info(engine(db_name='rrshare'))
+    rq_util_log_info(engine(db_name='rrdata'))
     rq_util_log_info(engine_async())
+    #rq_util_log_info(engine_asyncpg())
     
         
