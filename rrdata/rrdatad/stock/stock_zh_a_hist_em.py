@@ -20,7 +20,7 @@ columns_new1 = [
             "low",
             "open",
             "pre_close",
-            "ratio",
+            "vol_chg",
             "turnover",
             "pe",
             "pb",
@@ -129,7 +129,7 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
             "low",
             "open",
             "pre_close",
-            "ratio",
+            "vol_chg",
             "turnover",
             "pe",
             "pb",
@@ -145,7 +145,7 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
     temp_df["low"] = pd.to_numeric(temp_df["low"], errors="coerce")
     temp_df["open"] = pd.to_numeric(temp_df["open"], errors="coerce")
     temp_df["pre_close"] = pd.to_numeric(temp_df["pre_close"], errors="coerce")
-    temp_df["ratio"] = pd.to_numeric(temp_df["ratio"], errors="coerce")
+    temp_df["vol_chg"] = pd.to_numeric(temp_df["vol_chg"], errors="coerce")
     temp_df["turnover"] = pd.to_numeric(temp_df["turnover"], errors="coerce")
     temp_df["pe"] = pd.to_numeric(temp_df["pe"], errors="coerce")
     temp_df["pb"] = pd.to_numeric(temp_df["pb"], errors="coerce")
@@ -224,7 +224,7 @@ def code_id_map_em() -> dict:
     return code_id_dict
 
 
-def stock_zh_a_hist(
+def stock_zh_a_hist_em(
         symbol: str = "000016",
         period: str = "daily",
         start_date: str = "19700101",
@@ -530,7 +530,7 @@ if __name__ == "__main__":
     stock_zh_a_spot_em_df = stock_zh_a_spot_em()
     print(stock_zh_a_spot_em_df)
 
-    stock_zh_a_hist_df = stock_zh_a_hist(
+    stock_zh_a_hist_df = stock_zh_a_hist_em(
         symbol="600519", period='daily', start_date="20210101", end_date="20221231", adjust="hfq")
     print(stock_zh_a_hist_df)
 
@@ -543,7 +543,7 @@ if __name__ == "__main__":
     stock_zh_a_hist_min_em_df = stock_zh_a_hist_min_em(symbol="000001", period='60', adjust='hfq', start_date="2022-04-15 09:32:00", end_date="2022-04-15 14:40:00")
     print(stock_zh_a_hist_min_em_df)
 
-    stock_zh_a_hist_df = stock_zh_a_hist(symbol="833454", period="daily", start_date="20170301", end_date='20211115', adjust="hfq")
+    stock_zh_a_hist_df = stock_zh_a_hist_em(symbol="833454", period="daily", start_date="20170301", end_date='20211115', adjust="hfq")
     print(stock_zh_a_hist_df)
 
    
