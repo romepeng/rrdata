@@ -1,9 +1,12 @@
 [tool.poetry]
 name = "rrdata"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
 authors = ["romepeng <romepeng@outlook.com>"]
 readme = "README.md"
+
+repository =  "https://github.com/romepeng/rrdata.git"
+#config = "git@github.com:romepeng/.rrsdk.git"
 
 [tool.poetry.dependencies]
 python = "^3.9"
