@@ -10,7 +10,7 @@ import requests
 from tqdm import tqdm
 
 
-def stock_fhps_em(date: str = "20220331") -> pd.DataFrame:
+def stock_fhps_em(date: str = "20210630") -> pd.DataFrame:
     """
     东方财富网-数据中心-年报季报-分红送配
     http://data.eastmoney.com/yjfp/
@@ -117,15 +117,5 @@ def stock_fhps_em(date: str = "20220331") -> pd.DataFrame:
 
 
 if __name__ == '__main__':
-    stock_fhps_em_df = stock_fhps_em(date='20211231')[['代码',
-        '名称',
-        '送转股份-送转总比例',
-        '送转股份-送转比例',
-        '送转股份-转股比例',
-        '现金分红-现金分红比例',
-        '预案公告日',
-        '股权登记日',
-        '除权除息日',
-        '方案进度',
-        '最新公告日期']]
-    print(stock_fhps_em_df.tail(20))  #.sort_values(by='除权除息日', ascending=True,inplace=True))
+    stock_fhps_em_df = stock_fhps_em(date="20201231")
+    print(stock_fhps_em_df)

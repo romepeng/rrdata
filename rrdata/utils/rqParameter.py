@@ -10,6 +10,53 @@ MAX_QUERY_SIZE: int = 5000
 TS_DATE_FORMATE: str = '%Y%m%d'
 MAX_QUERY_TIMES: int = 500
 
+
+class AdjustType(Enum):
+    """
+    split-adjusted type for :class:`~.zvt.contract.schema.TradableEntity` quotes
+    """
+    #: not adjusted
+    #: 不复权
+    bfq = "bfq"
+    #: pre adjusted
+    #: 不复权
+    qfq = "qfq"
+    #: post adjusted
+    #: 不复权
+    hfq = "hfq"
+
+
+class ActorType(Enum):
+    #: 个人
+    individual = "individual"
+    #: 公募基金
+    raised_fund = "raised_fund"
+    #: 社保
+    social_security = "social_security"
+    #: 保险
+    insurance = "insurance"
+    #: 外资
+    qfii = "qfii"
+    #: 信托
+    trust = "trust"
+    #: 券商
+    broker = "broker"
+    #: 私募
+    private_equity = "private_equity"
+    #: 公司(可能包括私募)
+    corporation = "corporation"
+
+
+class Exchange(Enum):
+    #: 上证交易所
+    sh = "sh"
+    #: 深证交易所
+    sz = "sz"
+    #: bj
+    bj = "bj"
+
+
+
 class TRADE_TIMES():
     TRADE_TIME_AM = ['09:30:00','11:30:00']
     TRADE_TIME_PM = ["13:00:00","15:00:00"]
@@ -37,48 +84,12 @@ class SWL_LEVEL():
     LEVEL =['L1','L2','L3']
     SWL_LEVEL = ['sw_l1','sw_l2','sw_l3']
 
-class ORDER_DIRECTION():
-    """订单的买卖方向
-    BUY 股票 买入
-    SELL 股票 卖出
-    BUY_OPEN 期货 多开
-    BUY_CLOSE 期货 空平(多头平旧仓)
-    SELL_OPEN 期货 空开
-    SELL_CLOSE 期货 多平(空头平旧仓)
-    ASK  申购
-    """
-
-    BUY = 1
-    SELL = -1
-    BUY_OPEN = 2
-    BUY_CLOSE = 3
-    SELL_OPEN = -2
-    SELL_CLOSE = -3
-    SELL_CLOSETODAY = -4
-    BUY_CLOSETODAY = 4
-    ASK = 0
-    XDXR = 5
-    OTHER = 6
-
-
-class TIME_CONDITION():
-    IOC = 'IOC'  # 立即完成，否则撤销
-    GFS = 'GFS'  # 本节有效
-    GFD = 'GFD'  # 当日有效
-    GTD = 'GTD'  # 指定日期前有效
-    GTC = 'GTC'  # 撤销前有效
-    GFA = 'GFA'  # 集合竞价有效
-
-
-class VOLUME_CONDITION():
-    ANY = 'ANY'  # 任意数量
-    MIN = 'MIN'  # 最小数量
-    ALL = 'ALL'  # 全部数量
 
 
 class EXCHANGE_ID():
     SSE = 'sse'  # 上交所
     SZSE = 'szse'  # 深交所
+    BSE = 'bse' # 北京交易所
     SHFE = 'SHFE'  # 上期所
     DCE = 'DCE'  # 大商所
     CZCE = 'CZCE'  # 郑商所
@@ -90,128 +101,6 @@ class EXCHANGE_ID():
     BITFINEX = 'BITFINEX' # BITFINEX
     OKEX = 'OKEx' # OKEx
 
-
-class OFFSET():
-    """订单的开平仓属性
-    OPEN 股票/期货 开仓
-    CLOSE 股票 卖出
-    CLOSE_HISTORY 期货 平昨
-    CLOSE_TODAY 期货 平今
-    REVERSE 期货 反手(默认先平昨再平今)
-    """
-
-    OPEN = 'OPEN'
-    CLOSE = 'CLOSE'
-    CLOSETODAY = 'CLOSETODAY'
-    REVERSE = 'REVERSE'
-
-
-class ORDER_MODEL():
-    """订单的成交模式
-    LIMIT 限价模式
-    MARKET 市价单 # 目前市价单在回测中是bar的开盘价 /实盘里面是五档剩余最优成交价
-    CLOSE 收盘单 # 及在bar的收盘时的价格
-    NEXT_OPEN 下一个bar的开盘价成交
-    STRICT 严格订单 不推荐/仅限回测/是在当前bar的最高价买入/当前bar的最低价卖出
-    @yutiansut/2017-12-18
-    """
-
-    LIMIT = 'LIMIT'  # 限价
-    ANY = 'ANY'  # 市价(otg兼容)
-    MARKET = 'MARKET'  # 市价/在回测里是下个bar的开盘价买入/实盘就是五档剩余最优成交价
-    CLOSE = 'CLOSE'  # 当前bar的收盘价买入
-    NEXT_OPEN = 'NEXT_OPEN'  # 下个bar的开盘价买入
-    STRICT = 'STRICT'  # 严格模式/不推荐(仅限回测测试用)
-    BEST = 'BEST'  # 中金所  最优成交剩余转限
-    FIVELEVEL = 'FIVELEVEL'
-
-
-class ORDER_STATUS():
-    """订单状态
-    status1xx 订单待生成
-    status3xx 初始化订单  临时扣除资产(可用现金/可卖股份)
-    status3xx 订单存活(等待交易)
-    status2xx 订单完全交易/未完全交易
-    status4xx 主动撤单
-    status500 订单死亡(每日结算) 恢复临时资产    
-    订单生成(100) -- 进入待成交队列(300) -- 完全成交(200) -- 每日结算(500)-- 死亡
-    订单生成(100) -- 进入待成交队列(300) -- 部分成交(203) -- 未成交(300) -- 每日结算(500) -- 死亡
-    订单生成(100) -- 进入待成交队列(300) -- 主动撤单(400) -- 每日结算(500) -- 死亡
-    """
-
-    # NEW = 100
-    # SUCCESS_ALL = 200
-    # SUCCESS_PART = 203
-    # QUEUED = 300  # queued 用于表示在order_queue中 实际表达的意思是订单存活 待成交
-    # CANCEL_ALL = 400
-    # CANCEL_PART = 402
-    # SETTLED = 500
-    # FAILED = 600
-
-    NEW = 'new'
-    SUCCESS_ALL = 'success_all'  # == FINISHED
-    SUCCESS_PART = 'success_part'
-    QUEUED = 'queued'  # queued 用于表示在order_queue中 实际表达的意思是订单存活 待成交 == ALIVED
-    CANCEL_ALL = 'cancel_all'
-    CANCEL_PART = 'cancel_part'
-    SETTLED = 'settled'
-    FAILED = 'failed'
-    NEXT = 'next'  # 当前bar未成交,下一个bar继续等待
-
-
-class AMOUNT_MODEL():
-    """订单的成交量
-    by_money是按固定成交总额下单,动态计算成交量
-    by_amount 按固定数量下单
-    """
-
-    BY_MONEY = 'by_money'
-    BY_AMOUNT = 'by_amount'
-
-
-class RUNNING_ENVIRONMENT():
-    """执行环境
-    回测
-    模拟
-    t0
-    实盘
-    随机(按算法/分布随机生成行情)/仅用于训练测试
-    """
-
-    BACKETEST = 'backtest'
-    SIMULATION = 'simulation'
-    TZERO = 't0'
-    REAL = 'real'
-    RANDOM = 'random'
-    TTS = 'tts'
-
-
-class TRADE_STATUS():
-    """交易状态返回值
-    涨跌停限制: 202
-    成功交易 : 200
-    当天无交易数据: 500
-    订单失败(比如买卖价格超过涨跌停价格范围,交易量过大等等):400
-    """
-
-    SUCCESS = 'trade_success'
-    PRICE_LIMIT = 'trade_price_limit'  # 只是未成交
-    NO_MARKET_DATA = 'trade_no_market_data'
-    FAILED = 'trade_failed'
-
-
-class MARKET_ERROR():
-    """市场类的错误
-    1. 账户以及存在(不能重复注册)
-    2. 网络中断
-    3. 数据库连接丢失
-    4. 数值/索引不存在
-    """
-
-    ACCOUNT_EXIST = 'ACCOUNT EXIST {}'
-    NETWORK_BROKERN = 'NETWORK BROKEN {}'
-    DATABSECONNECT_LOST = 'DATABASECONNECTION LOST {}'
-    VALUE_NOT_FOUND = 'VALUE_NOT_FOUND'
 
 
 class MARKET_TYPE():
@@ -242,138 +131,6 @@ class MARKET_TYPE():
     BOND_CN = 'bond_cn'  # 中国债券
 
 
-class BROKER_TYPE():
-    """执行环境
-    回测
-    模拟
-    实盘
-    随机(按算法/分布随机生成行情)/仅用于训练测试
-    """
-
-    BACKETEST = 'backtest'
-    SIMULATION = 'simulation'
-    REAL = 'real'
-    RANDOM = 'random'
-    SHIPANE = 'shipane'
-    TTS = 'tts'
-
-
-class EVENT_TYPE():
-    """[summary]
-    """
-
-    BROKER_EVENT = 'broker_event'
-    ACCOUNT_EVENT = 'account_event'
-    MARKET_EVENT = 'market_event'
-    TRADE_EVENT = 'trade_event'
-    ENGINE_EVENT = 'engine_event'
-    ORDER_EVENT = 'order_event'
-
-
-class MARKET_EVENT():
-    """交易前置事件
-    query_order 查询订单
-    query_assets 查询账户资产
-    query_account 查询账户
-    query_cash 查询账户现金
-    query_data 请求数据
-    query_deal 查询成交记录
-    query_position 查询持仓
-    """
-
-    QUERY_ORDER = 'query_order'
-    QUERY_ASSETS = 'query_assets'
-    QUERY_ACCOUNT = 'query_account'
-    QUERY_CASH = 'query_cash'
-    QUERY_DATA = 'query_data'
-    QUERY_DEAL = 'query_deal'
-    QUERY_POSITION = 'query_position'
-
-
-class ENGINE_EVENT():
-    """引擎事件"""
-    MARKET_INIT = 'market_init'
-    UPCOMING_DATA = 'upcoming_data'
-    UPCOMING_TICK = 'upcoming_tick'
-    UPCOMING_BAR = 'upcoming_bar'
-    BAR_SETTLE = 'bar_settle'
-    DAILY_SETTLE = 'daily_settle'
-    UPDATE = 'update'
-    TRANSACTION = 'transaction'
-    ORDER = 'order'
-
-
-class ACCOUNT_EVENT():
-    """账户事件"""
-    UPDATE = 'account_update'
-    SETTLE = 'account_settle'
-    MAKE_ORDER = 'account_make_order'
-
-
-class BROKER_EVENT():
-    """BROKER事件
-    BROKER 
-    有加载数据的任务 load data
-    撮合成交的任务 broker_trade
-    轮询是否有成交记录 query_deal
-    """
-    LOAD_DATA = 'load_data'
-    TRADE = 'broker_trade'
-    SETTLE = 'broker_settle'
-    DAILY_SETTLE = 'broker_dailysettle'
-    RECEIVE_ORDER = 'receive_order'
-    QUERY_DEAL = 'query_deal'
-    NEXT_TRADEDAY = 'next_tradeday'
-
-
-class ORDER_EVENT():
-    """订单事件
-    创建订单 create
-    交易 trade
-    撤单 cancel
-    """
-    CREATE = 'create'
-    TRADE = 'trade'
-    CANCEL = 'cancel'
-    FAIL = 'fail'
-
-
-class FREQUENCE():
-    """查询的级别
-    YEAR = 'year'  # 年bar
-    QUARTER = 'quarter'  # 季度bar
-    MONTH = 'month'  # 月bar
-    WEEK = 'week'  # 周bar
-    DAY = 'day'  # 日bar
-    ONE_MIN = '1min'  # 1min bar
-    FIVE_MIN = '5min'  # 5min bar
-    FIFTEEN_MIN = '15min'  # 15min bar
-    THIRTY_MIN = '30min'  # 30min bar
-    HOUR = '60min'  # 60min bar
-    SIXTY_MIN = '60min'  # 60min bar
-    TICK = 'tick'  # transaction
-    ASKBID = 'askbid'  # 上下五档/一档
-    REALTIME_MIN = 'realtime_min' # 实时分钟线
-    LATEST = 'latest'  # 当前bar/latest
-    2019/08/06 @yutiansut
-    """
-
-    YEAR = 'year'  # 年bar
-    QUARTER = 'quarter'  # 季度bar
-    MONTH = 'month'  # 月bar
-    WEEK = 'week'  # 周bar
-    DAY = 'day'  # 日bar
-    ONE_MIN = '1min'  # 1min bar
-    FIVE_MIN = '5min'  # 5min bar
-    FIFTEEN_MIN = '15min'  # 15min bar
-    THIRTY_MIN = '30min'  # 30min bar
-    HOUR = '60min'  # 60min bar
-    SIXTY_MIN = '60min'  # 60min bar
-    TICK = 'tick'  # transaction
-    ASKBID = 'askbid'  # 上下五档/一档
-    REALTIME_MIN = 'realtime_min'  # 实时分钟线
-    LATEST = 'latest'  # 当前bar/latest
-
 
 class CURRENCY_TYPE():
     """货币种类"""
@@ -398,6 +155,7 @@ class DATASOURCE():
     TUSHARE = 'tushare'  # tushare
     TDX = 'tdx'  # 通达信
     MONGO = 'mongo'  # 本地/远程Mongodb
+    PGSQL = 'postgresql' # 本地/远程Mongodb
     EASTMONEY = 'eastmoney'  # 东方财富网
     CHOICE = 'choice'  # choice金融终端
     CCXT = 'ccxt'  # github/ccxt 虚拟货币
@@ -457,12 +215,171 @@ DATABASE_TABLE = {
     (MARKET_TYPE.FUND_CN, FREQUENCE.SIXTY_MIN): 'index_min',
     (MARKET_TYPE.FUND_CN, FREQUENCE.HOUR): 'index_min',
     (MARKET_TYPE.FUND_CN, FREQUENCE.TICK): 'index_transaction',
-    (MARKET_TYPE.FUTURE_CN, FREQUENCE.DAY): 'future_day',
-    (MARKET_TYPE.FUTURE_CN, FREQUENCE.ONE_MIN): 'future_min',
-    (MARKET_TYPE.FUTURE_CN, FREQUENCE.FIVE_MIN): 'future_min',
-    (MARKET_TYPE.FUTURE_CN, FREQUENCE.FIFTEEN_MIN): 'future_min',
-    (MARKET_TYPE.FUTURE_CN, FREQUENCE.THIRTY_MIN): 'future_min',
-    (MARKET_TYPE.FUTURE_CN, FREQUENCE.SIXTY_MIN): 'future_min',
-    (MARKET_TYPE.FUTURE_CN, FREQUENCE.HOUR): 'future_min',
-    (MARKET_TYPE.FUTURE_CN, FREQUENCE.TICK): 'future_transaction'
+    
 }
+
+
+class IntervalLevel(Enum):
+    """
+    Repeated fixed time interval, e.g, 5m, 1d.
+    """
+
+    #: level tick
+    LEVEL_TICK = "tick"
+    #: 1 minute
+    LEVEL_1MIN = "1m"
+    #: 5 minutes
+    LEVEL_5MIN = "5m"
+    #: 15 minutes
+    LEVEL_15MIN = "15m"
+    #: 30 minutes
+    LEVEL_30MIN = "30m"
+    #: 1 hour
+    LEVEL_1HOUR = "1h"
+    #: 4 hours
+    LEVEL_4HOUR = "4h"
+    #: 1 day
+    LEVEL_1DAY = "1d"
+    #: 1 week
+    LEVEL_1WEEK = "1wk"
+    #: 1 month
+    LEVEL_1MON = "1mon"
+
+    def to_pd_freq(self):
+        if self == IntervalLevel.LEVEL_1MIN:
+            return "1min"
+        if self == IntervalLevel.LEVEL_5MIN:
+            return "5min"
+        if self == IntervalLevel.LEVEL_15MIN:
+            return "15min"
+        if self == IntervalLevel.LEVEL_30MIN:
+            return "30min"
+        if self == IntervalLevel.LEVEL_1HOUR:
+            return "1H"
+        if self == IntervalLevel.LEVEL_4HOUR:
+            return "4H"
+        if self >= IntervalLevel.LEVEL_1DAY:
+            return "1D"
+
+    def floor_timestamp(self, pd_timestamp):
+        if self == IntervalLevel.LEVEL_1MIN:
+            return pd_timestamp.floor("1min")
+        if self == IntervalLevel.LEVEL_5MIN:
+            return pd_timestamp.floor("5min")
+        if self == IntervalLevel.LEVEL_15MIN:
+            return pd_timestamp.floor("15min")
+        if self == IntervalLevel.LEVEL_30MIN:
+            return pd_timestamp.floor("30min")
+        if self == IntervalLevel.LEVEL_1HOUR:
+            return pd_timestamp.floor("1h")
+        if self == IntervalLevel.LEVEL_4HOUR:
+            return pd_timestamp.floor("4h")
+        if self == IntervalLevel.LEVEL_1DAY:
+            return pd_timestamp.floor("1d")
+
+    def to_minute(self):
+        return int(self.to_second() / 60)
+
+    def to_second(self):
+        return int(self.to_ms() / 1000)
+
+    def to_ms(self):
+        """
+        To seconds count in the interval
+        :return: seconds count in the interval
+        """
+        #: we treat tick intervals is 5s, you could change it
+        if self == IntervalLevel.LEVEL_TICK:
+            return 5 * 1000
+        if self == IntervalLevel.LEVEL_1MIN:
+            return 60 * 1000
+        if self == IntervalLevel.LEVEL_5MIN:
+            return 5 * 60 * 1000
+        if self == IntervalLevel.LEVEL_15MIN:
+            return 15 * 60 * 1000
+        if self == IntervalLevel.LEVEL_30MIN:
+            return 30 * 60 * 1000
+        if self == IntervalLevel.LEVEL_1HOUR:
+            return 60 * 60 * 1000
+        if self == IntervalLevel.LEVEL_4HOUR:
+            return 4 * 60 * 60 * 1000
+        if self == IntervalLevel.LEVEL_1DAY:
+            return 24 * 60 * 60 * 1000
+        if self == IntervalLevel.LEVEL_1WEEK:
+            return 7 * 24 * 60 * 60 * 1000
+        if self == IntervalLevel.LEVEL_1MON:
+            return 31 * 7 * 24 * 60 * 60 * 1000
+
+    def __ge__(self, other):
+        if self.__class__ is other.__class__:
+            return self.to_ms() >= other.to_ms()
+        return NotImplemented
+
+    def __gt__(self, other):
+
+        if self.__class__ is other.__class__:
+            return self.to_ms() > other.to_ms()
+        return NotImplemented
+
+    def __le__(self, other):
+        if self.__class__ is other.__class__:
+            return self.to_ms() <= other.to_ms()
+        return NotImplemented
+
+    def __lt__(self, other):
+        if self.__class__ is other.__class__:
+            return self.to_ms() < other.to_ms()
+        return NotImplemented
+
+
+class BlockCategory(Enum):
+    #: 行业版块
+    industry = "industry"
+    #: 概念版块
+    concept = "concept"
+    #: 区域版块
+    area = "area"
+
+
+class IndexCategory(Enum):
+    #: 中国指数提供商：
+    #: 中证指数公司 http://www.csindex.com.cn/zh-CN
+    #: 上证指数(上交所标的) 中证指数(沪深)
+
+    #: 国证指数公司 http://www.cnindex.com.cn/index.html
+    #: 深证指数(深交所标的) 国证指数(沪深)
+
+    #: 规模指数
+    #: 常见的上证指数，深证指数等
+    scope = "scope"
+    #: 行业指数
+    industry = "industry"
+    #: 风格指数
+    style = "style"
+    #: 主题指数
+    #
+    #: 策略指数
+    #
+    #: 综合指数
+    #
+    #: 债券指数
+    #
+    #: 基金指数
+    fund = "fund"
+    #: 定制指数
+    #
+    #: 人民币指数
+    #
+    #: 跨境指数
+    #
+    #: 其他指数
+
+
+class ReportPeriod(Enum):
+    # 有些基金的2，4季报只有10大持仓，半年报和年报有详细持仓，需要区别对待
+    season1 = "season1"
+    season2 = "season2"
+    season3 = "season3"
+    season4 = "season4"
+    half_year = "half_year"
+    year = "year"

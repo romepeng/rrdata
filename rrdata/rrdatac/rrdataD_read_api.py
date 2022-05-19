@@ -27,6 +27,7 @@ class RrdataD(object):
         bigquant DataSource("trade_days").read() 
         also add  can change:
         source database/sql_driver
+        SELECT DISTINCT --only
     """
     def __init__(self,
                 table_name, 
@@ -41,30 +42,8 @@ class RrdataD(object):
 
     def read(self, instruments: List=None,start_date: str=None, end_date: str=None,fields: List=None) -> DataFrame:
         """   default None (all)  --> out whole table """
-
-        '''
-        if (instruments) & (not start_date ) & (not fields) :
-         
-            sql_query = f"""SELECT *  FROM {self.table_name}
-                          WHERE ts_code IN {instruments} ;
-                         """   
-        elif (not instruments) & start_date & (not fields):
-            sql_query = f"""SELECT *  FROM {self.table_name}
-                            WHERE trade_date  >= '{start_date}';
-                         """   
-        elif (not instruments) & start_date & end_date & (not fields):
-            sql_query = f"""SELECT *  FROM {self.table_name}
-                            WHERE trade_date BETWEEN '{start_date}' AND '{end_date}';
-                         """       
-        elif fields:
-             sql_query = f"""SELECT {fields}  FROM {self.table_name}
-                            WHERE trade_date BETWEEN '{start_date}' AND '{end_date}' ;
-        
-                         """   
-        '''
-        
         if fields:
-            field =  ','.join(fields) if isinstance(fields, list)  else fields 
+            field =  ','.join(fields) if isinstance(fields, list)  else fields.replace(' ','') 
         else:
             field ="*"
         sql_query = f"""SELECT DISTINCT {field}  
@@ -75,24 +54,27 @@ class RrdataD(object):
         if end_date:
             sql_query += f"AND trade_date <= '{end_date}' "
         if instruments:
+            iterms = "AND" if start_date else "WHERE" 
             if isinstance(instruments, list):
                 instrument = "','".join(instruments)
             else:
+                instruments = instruments.replace(' ','')
                 instrument = "','".join(instruments.split(",")) #map(lambda x: ",".join('x'), instruments)
-                #print(instrument)
-            ITERMS = "WHERE" if not start_date else "AND" 
-            sql_query +=  f"{ITERMS} ts_code in ('{instrument}')"
+            sql_query +=  f"{iterms} ts_code in ('{instrument}')"
         print(sql_query)
-        return  pd.read_sql(sql_query, self.engine)
+        try:
+            return pd.read_sql(sql_query, self.engine)
+        except Exception as E:
+            print(E)
 
 
 if  __name__ == "__main__":
     print(RrdataD("swl_list").__repr__())
-    #print(RrdataD('stock_list').read())
+    print(RrdataD('stock_list').read())
     #print(RrdataD('stock_list_tspro').read(fields=["ts_code", "name", "list_status"]))
     #print(RrdataD('stock_spot').read(fields="code,pb, pe"))
-    #print(RrdataD('stock_day_test').read(start_date='2022-05-16', end_date='2022-05-16', fields="ts_code, trade_date, close"))
+    print(RrdataD('stock_day_test').read(start_date='2022-05-16', fields="ts_code , trade_date,close"))
     #print(RrdataD('stock_day_test').read(instruments=["000792.SZ", "600519.SH"]))
-    #print(RrdataD('stock_day_test').read(instruments="000792.SZ,600519.SH"))
+    #print(RrdataD('stock_day_test').read(instruments=" 000792.SZ , 600519.SH "))
 
-    print(RrdataD('stock_day_test').read(start_date='2022-05-16'))
+    #print(RrdataD('stock_day_test').read(start_date='2022-05-16'))
