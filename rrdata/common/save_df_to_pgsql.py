@@ -22,7 +22,7 @@ if  __name__ == '__main__':
     #data2 = index.sw_index_cons()
     #save_df_to_pgsql(data2, 'swl_cons')
     data3 = index.sw_index_spot(level="L2")
-    save_df_to_pgsql(data3, 'swl_spot_L2',db_name='rrshare')
+    save_df_to_pgsql(data3, 'swl_spot_L2') #,db_name='rrshare')
 
 
 

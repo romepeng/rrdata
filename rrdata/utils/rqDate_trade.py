@@ -123,7 +123,7 @@ def rq_util_get_last_tradedate():
     _date = _now.strftime('%Y-%m-%d')
     #print(_now, _hour, _date)
     if  _date in trade_date_sse:
-        if _hour > 19:
+        if _hour > 16:
             return trade_date_sse[trade_date_sse.index(_date)]
         else:
             return trade_date_sse[trade_date_sse.index(_date) - 1]
@@ -312,6 +312,7 @@ def rq_util_get_last_day(date, n=1):
     """
     date = str(date)[0:10]
     return rq_util_date_gap(date, n, "lt")
+
 
 
 def rq_util_get_last_datetime(datetime, day=1):

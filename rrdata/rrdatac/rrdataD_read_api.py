@@ -61,7 +61,7 @@ class RrdataD(object):
                 instruments = instruments.replace(' ','')
                 instrument = "','".join(instruments.split(",")) #map(lambda x: ",".join('x'), instruments)
             sql_query +=  f"{iterms} ts_code in ('{instrument}')"
-        print(sql_query)
+        #print(sql_query)
         try:
             return pd.read_sql(sql_query, self.engine)
         except Exception as E:

@@ -2,16 +2,18 @@ import logging
 import pstats
 from symtable import Symbol
 import pandas as pd
-import logging
 
 import tushare as ts
 from rrdata.rrdatad.stock.tusharepro import pro
+from rrdata.utils.rqDate_trade import rq_util_get_last_tradedate, rq_util_get_last_day,rq_util_get_pre_trade_date
 from rrdata.rrdatad.stock.fetch_stock_list import fetch_stock_code_em
 from rrdata.utils.rqCode import rq_util_str_tounitecode
 from rrdata.utils.rqLogs import rq_util_log_debug, rq_util_log_info, rq_util_log_expection
 from rrdata.rrdatad.stock import stock_zh_a_hist_em, stock_zh_a_spot_em
 from rrdata.common import save_df_to_pgsql, read_df_from_table,engine
 from rrdata.rrdatac.rrdataD_read_api import RrdataD
+
+
 
 startDate = "20200101"
 def get_stock_daily_one(symbol="600519",period="daily",start_date=startDate, end_date="20321231", adjust="hfq"):
@@ -78,7 +80,7 @@ def save_stock_daily_adj(stock_list=None,table_name='stock_day_adj'): #TODO
     lists = fetch_stock_code_em()
     rq_util_log_debug(len(lists))
   
-    for symbol in lists[:1]:
+    for symbol in lists:
         try:
             ts_code = rq_util_str_tounitecode(symbol)
             #data1 = get_stock_daily_one(symbol)
@@ -91,6 +93,21 @@ def save_stock_daily_adj(stock_list=None,table_name='stock_day_adj'): #TODO
             save_df_to_pgsql(data,table_name,engine(db_name="rrdata"),if_exists='append')
         except Exception as e:
             rq_util_log_expection(e)
+
+
+def save_stock_day_tspro(trade_date=rq_util_get_last_tradedate(), table_name="stock_day"):
+    trade_date = trade_date.replace("-","")
+    print(trade_date)
+    df_lasttradedate = pro.daily(trade_date=trade_date).sort_values(by="ts_code", ascending=False)
+    print(df_lasttradedate)
+    save_df_to_pgsql(df_lasttradedate,'stock_day',if_exists='append')
+    #before_date = rq_util_get_pre_trade_date(1).replace("-","")
+    #print(before_date)
+    #df_before = pro.daily(trade_date='20220518')
+    #print(df_before)
+    #save_df_to_pgsql(df_before, "stock_day")
+
+  
 
 
 if  __name__ == "__main__":
@@ -108,8 +125,11 @@ if  __name__ == "__main__":
     #save_adjfactor_to_pgsql()
 
     #read_df_from_table('adj_factor')
-    save_stock_daily_adj()
+    #save_stock_daily_adj()
     #print(RrdataD('stock_day_adj').read(start_date="2022-05-17"))
     #print(RrdataD('stock_day_adj').read(instruments=["000792.SZ",'600519.SH']))
+    #save_stock_day_tspro()
+    df = RrdataD('stock_day').read().set_index("ts_code").sort_index()
+    print(df)
 
 
