@@ -6,6 +6,8 @@ from pytz import timezone
 
 CHINA_TZ = timezone("Asia/Shanghai")
 
+startDate = "2021-04-28"  #rq_util_get_pre_trade_date(rq_util_get_last_tradedate(), 255)
+
 MAX_QUERY_SIZE: int = 5000
 TS_DATE_FORMATE: str = '%Y%m%d'
 MAX_QUERY_TIMES: int = 500

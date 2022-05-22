@@ -1,8 +1,5 @@
 import psycopg2
-import asyncio
-import asyncpg
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy import create_engine
 
 from rrdata.utils.rqLogs import rq_util_log_info
 from rrdata.utils.rqSetting import setting
@@ -23,25 +20,9 @@ def engine(driver="psycopg2", db_name="rrdata"):
     elif driver == "psycopg2":
         conn = create_engine(f"postgresql+{driver}://{database_str}/{db_name}")
     return conn
-    
-async def engine_asyncpg(db_name='rrdata"'):
-    """
-           usage:
-        conn = await asyncpg.connect()
-        con = engine_asyncpg(db_name)
-        asyncio.get_event_loop().run_until_complete(func())
-    """
-    return await asyncpg.connect(f"postgresql://{database_str}/{db_name}")
-
-def engine_async(db_name="rrdata"): #TODO
-    return create_async_engine(f"postgresql+asyncpg://{database_str}/{db_name}",
-             #  connect_args={"server_settings": {"jit": "off"}},
-             )
-
+   
 
 if  __name__ == "__main__":
     rq_util_log_info(engine(db_name='rrdata'))
-    rq_util_log_info(engine_async())
-    #rq_util_log_info(engine_asyncpg())
-    
+   
         

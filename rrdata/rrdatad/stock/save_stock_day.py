@@ -1,135 +1,148 @@
-import logging
-import pstats
-from symtable import Symbol
+import time
 import pandas as pd
+
 
 import tushare as ts
 from rrdata.rrdatad.stock.tusharepro import pro
-from rrdata.utils.rqDate_trade import rq_util_get_last_tradedate, rq_util_get_last_day,rq_util_get_pre_trade_date
+from rrdata.utils.rqDate import  rq_util_date_int2str
+from rrdata.utils.rqDate_trade import rq_util_get_last_tradedate, rq_util_get_last_day,rq_util_get_pre_trade_date,rq_util_get_trade_range
 from rrdata.rrdatad.stock.fetch_stock_list import fetch_stock_code_em
 from rrdata.utils.rqCode import rq_util_str_tounitecode
 from rrdata.utils.rqLogs import rq_util_log_debug, rq_util_log_info, rq_util_log_expection
-from rrdata.rrdatad.stock import stock_zh_a_hist_em, stock_zh_a_spot_em
-from rrdata.common import save_df_to_pgsql, read_df_from_table,engine
+from rrdata.utils.rqDate import rq_util_date_str2int
+from rrdata.common import save_df_to_pgsql, read_df_from_table,read_data_from_table, engine
+from rrdata.common.get_update_tradedate import get_wanted_record_tradedate, get_wanted_record_tradedate_check_tscode
+
+from rrdata.common.read_data_from_table import read_one_row_from_table, read_one_row_from_table_check_tscode
 from rrdata.rrdatac.rrdataD_read_api import RrdataD
 
 
-
-startDate = "20200101"
-def get_stock_daily_one(symbol="600519",period="daily",start_date=startDate, end_date="20321231", adjust="hfq"):
-    """ 
-    hist daily from eastmoney
-    adjust: : "hfq"
-    #HowTO get stock adhust_factor
-    """
-    df = stock_zh_a_hist_em(symbol,period,start_date,end_date,adjust)
-    df['ts_code'] = rq_util_str_tounitecode(symbol)
-    df = df[['ts_code','trade_date','open','high','low','close','chg_pct','vol','amount']]
-    return df
+startDate = "2021-04-28"
+last_tradedate = rq_util_get_last_tradedate().replace("-","")
+#startDate = rq_util_get_pre_trade_date(rq_util_get_last_tradedate(),255).replace("-","")
+#print(last_tradedate, startDate)
 
 
-def get_stock_daily_adjfactor_one(symbol="600519",period="daily",start_date=startDate, end_date="20321231", adj="hfq", adjfactor=True):
+def fetch_stock_list_tspro()-> pd.DataFrame:
+    stock_list_l= pro.stock_basic(exchange_id='', is_hs='',list_status='L' , fields='ts_code,symbol,name,area,industry,fullname,enname,market,exchange,curr_type,list_status,list_date,delist_date,is_hs')  
+    #stock_list_D= pro.stock_basic(exchange_id='', is_hs='',list_status='D' , fields='ts_code,symbol,name,area,industry,fullname,enname,market,exchange,curr_type,list_status,list_date,delist_date,is_hs')  
+    stock_list_P= pro.stock_basic(exchange_id='', is_hs='',list_status='P' , fields='ts_code,symbol,name,area,industry,fullname,enname,market,exchange,curr_type,list_status,list_date,delist_date,is_hs')          
+    #stock_list=pd.concat([stock_list_l,stock_list_D],axis=0)
+    stock_list=pd.concat([stock_list_l,stock_list_P],axis=0)
+    #stock_list = stock_list_l
+    stock_list['code']=stock_list['symbol']
+    #rq_util_log_info(stock_list)
+    return stock_list
+
+
+def fetch_stock_daily_hfq_one_tspro(ts_code='600519.SH',asset="E", adj='hfq', start_date=None, end_date=None,adjfactor=True):
+    return ts.pro_bar(ts_code=ts_code, asset=asset,adj=adj, start_date=start_date, end_date=end_date, adjfactor=adjfactor) 
+
+
+def fetch_stock_daily_adjfactor_one(symbol="600519", period="daily",start_date=startDate, end_date="20321231", adj="hfq", adjfactor=True):
     """  from tushare pro ts.pro_bar(adj="hfq', adjfactor=True)"""
-    """"
-    df_hfq = get_stock_daily_one(symbol=symbol, adjust='hfq')
-    logging.info(f"\n {df_hfq}")
-    df_bfq = get_stock_daily_one(symbol=symbol,adjust="")
-    logging.info(f"\n {df_bfq}")
-    df_adj = df_bfq.copy()
-    df_adj['adjfactor'] = df_hfq['close'] / df_bfq['close']
-    logging.info(f"\n {df_adj}")
-    """
     ts_code = rq_util_str_tounitecode(symbol)
     df_hfq_adj_one = ts.pro_bar(ts_code=ts_code, start_date=startDate, adj=adj, adjfactor=adjfactor)
-    #print(df_hfq_adj_one)
-    df_adj_one = df_hfq_adj_one[['trade_date','ts_code','adj_factor']]
-    print(df_adj_one)
-    return df_adj_one
+    return df_hfq_adj_one[['trade_date','ts_code','adj_factor']]
+    
 
-
-def save_stock_daily(stock_list=None,db_name='stock_day'):
-    """TODO  use asyncio -- postgres+asyncpg://host/dbname --engine
-        5000 class to 20 class 250 unit
-    """
-    lists = read_df_from_table('stock_list').symbol.values if None else stock_list
-    rq_util_log_debug(lists)
-    for symbol in lists:
+def fetch_stock_day_bfq_from_tspro(ts_code=None,trade_date=rq_util_get_last_tradedate().replace("-",""),start_date=None,end_date=None):   
+    trade_date = trade_date.replace('-', '') #兼容设置以防日期格式为2001-10-20格式
+    for _ in range(3):
         try:
-            data = get_stock_daily_one(symbol)
-            save_df_to_pgsql(data,db_name,if_exists='append')
-        except Exception as e:
-            rq_util_log_expection(e)
+            if trade_date:
+                df = pro.daily(ts_code=ts_code, trade_date=trade_date)
+            else:
+                df = pro.daily(ts_code=ts_code, start_date=start_date, end_date=end_date)
+        except:
+            time.sleep(1)
+        else:
+            return df
 
 
-def save_adjfactor_to_pgsql(stock_list=None,db_name="adj_factor"):
-    lists = fetch_stock_code_em()
-    rq_util_log_debug(len(lists))
-    for symbol in lists:
-        try:
-            data = get_stock_daily_adjfactor_one(symbol)
-            save_df_to_pgsql(data,db_name,if_exists='append')
-        except Exception as e:
-            rq_util_log_expection(e)
-
-
-def save_stock_daily_adj(stock_list=None,table_name='stock_day_adj'): #TODO
-    """TODO  use asyncio -- postgres+asyncpg://host/dbname --engine
-        5000 class to 20 class 250 unit
+def save_stock_day_hfq_to_pgsql(stock_list=None,start_date=startDate,table_name='stock_day_hfq'):
+    """two factor: ts_coe /trade_date
+       TODO suspased to fillna by trade_date / ipo date < startDate / 
     """
     #lists = read_df_from_table('stock_list').symbol.values if None else stock_list
-    lists = fetch_stock_code_em()
-    rq_util_log_debug(len(lists))
-  
-    for symbol in lists:
+    lists = fetch_stock_list_tspro().ts_code.to_list()
+    print(f" stock_list nums: {len(lists)}") # \n {lists[:10]}")
+        
+    t1 = time.time()
+    # check stock_dat_hfq trade_date_sql for update #TODO check for stock_list every one just chang start_date_one to for and change get_wanted...
+    start_date_one_list = get_wanted_record_tradedate(row="trade_date",start_date=start_date,table_name=table_name)
+    start_date_one = max(list(map(lambda x: rq_util_date_str2int(x), start_date_one_list))) if  start_date_one_list else last_tradedate
+    print(start_date_one)
+    if start_date_one == last_tradedate:
+        print("data is new, do not need update!")
+    else:
+        for ts_code in lists:
+            try:
+                print(ts_code)
+                #start_date_one_list = get_wanted_record_tradedate_check_tscode(ts_code,"trade_date",table_name)
+                #start_date_one = max(list(map(lambda x: rq_util_date_str2int(x), start_date_one_list))) if  start_date_one_list else last_tradedate
+                #print(start_date_one)
+                #start_date_one = rq_util_date_int2str(start_date_one)
+                data = ts.pro_bar(ts_code=ts_code, start_date=start_date_one, adj='hfq', adjfactor=True)
+                save_df_to_pgsql(data,table_name,if_exists='append')
+            except Exception as e:
+                rq_util_log_expection(e)
+    t2 = time.time()
+    print(f"times: {t2 - t1}")
+
+
+def save_stock_day_bfq_to_pgsql(start_date=startDate, table_name="stock_day_bfq"):
+    end_date = rq_util_get_last_tradedate()
+    try:
+        trade_data_pg = RrdataD(table_name).read(fields=['trade_date']).trade_date.to_list() 
+    except: 
+        #第一次运行
+        trade_data_pg = []
+    finally:
+        trade_date_sql = trade_data_pg
+    print(f"sql_trade_date nums:{len(trade_date_sql)}, like :{trade_date_sql[-1:]}")  # read trade_adte from stock_day_bfq 
+    trade_date = list(map(lambda x: x.replace("-",""), rq_util_get_trade_range(start_date, end_date)))  # TODO
+    print(len(trade_date))
+    trade_date2=list(set(trade_date).difference(set(trade_date_sql)))  #差集 trade_date in / not in trade_date_sql
+    # trade_date2 = [x for x in trade_date if x not in trade_date_sql]
+    trade_date2.sort()
+    print(f" -- diff  want to add trade_date : {trade_date2}")
+    
+    if len(trade_date2)==0:
+        print('Stock day is up to date and does not need to be updated')
+    for i in trade_date2:
+        #print(i)
         try:
-            ts_code = rq_util_str_tounitecode(symbol)
-            #data1 = get_stock_daily_one(symbol)
-            data1 = ts.pro_bar(ts_code, start_date=startDate)
-            data1.sort_values(by='trade_date', ascending=True, inplace=True)            
-            data2 = RrdataD('adj_factor').read(instruments=rq_util_str_tounitecode(symbol))
-            data2.sort_values(by='trade_date', ascending=False, inplace=True)
-            data = pd.merge(data1, data2)
-            rq_util_log_info(data)
-            save_df_to_pgsql(data,table_name,engine(db_name="rrdata"),if_exists='append')
+            t=time.time()        
+            df=fetch_stock_day_bfq_from_tspro(trade_date=i.replace("-",""))  
+            #print(df)
+            save_df_to_pgsql(df, f'{table_name}',if_exists='append')
+            t1=time.time()   
+            print('save '+i+' stock day success,take '+str(round(t1-t,2))+' S')        
         except Exception as e:
-            rq_util_log_expection(e)
-
-
-def save_stock_day_tspro(trade_date=rq_util_get_last_tradedate(), table_name="stock_day"):
-    trade_date = trade_date.replace("-","")
-    print(trade_date)
-    df_lasttradedate = pro.daily(trade_date=trade_date).sort_values(by="ts_code", ascending=False)
-    print(df_lasttradedate)
-    save_df_to_pgsql(df_lasttradedate,'stock_day',if_exists='append')
-    #before_date = rq_util_get_pre_trade_date(1).replace("-","")
-    #print(before_date)
-    #df_before = pro.daily(trade_date='20220518')
-    #print(df_before)
-    #save_df_to_pgsql(df_before, "stock_day")
-
-  
+            print(e)
 
 
 if  __name__ == "__main__":
-    #list1 = ['600519','000792','835185']
-    #save_stock_daily(list1, 'stock_day_test')
-   
-    #read_df_from_table('stock_day_test')
-
-    #df_bfq = get_stock_daily_one('600519')
-    #print(df_bfq)
-
-    #get_stock_daily_adjfactor_one('600519')
-    #print(fetch_stock_code_em(ts_code=True))
-
-    #save_adjfactor_to_pgsql()
-
-    #read_df_from_table('adj_factor')
-    #save_stock_daily_adj()
-    #print(RrdataD('stock_day_adj').read(start_date="2022-05-17"))
-    #print(RrdataD('stock_day_adj').read(instruments=["000792.SZ",'600519.SH']))
-    #save_stock_day_tspro()
-    df = RrdataD('stock_day').read().set_index("ts_code").sort_index()
-    print(df)
+    #print(fetch_stock_daily_hfq_one_tspro('600060.SH'))
+    #print(fetch_stock_daily_adjfactor_one())
+    #print(fetch_stock_day_bfq_from_tspro(trade_date="20220518"))
+    save_stock_day_bfq_to_pgsql() 
+    
+    save_stock_day_hfq_to_pgsql()
+    
+    #df = RrdataD('stock_day_hfq').read(instruments='600519.SH')
+    #print(df)
+    
+    #save_stock_day_bfq_to_pgsql()
+  
+    #df = RrdataD('stock_day_bfq').read(instruments=['000792.SZ'])
+    #print(df)
+    #df = RrdataD('stock_list',engine(driver="", db_name="rrshare")).read(instruments=['000792.SZ'])
+    #print(df)
+    #print(read_df_from_table("stock_day"))
+    
+    
+    pass
 
 

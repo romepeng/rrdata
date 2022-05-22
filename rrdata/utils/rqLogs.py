@@ -1,12 +1,7 @@
-# Coding:utf-8
-import configparser
-import datetime
 import os
-import sys
-#from zenlog 
+import datetime
 import logging
 from rrdata.utils.rqLocalize import log_path, setting_path
-#from .rqSetting import rq_Setting
 
 
 """2019-01-03  升级到warning级别 不然大量别的代码的log会批量输出出来
@@ -151,6 +146,8 @@ def rq_util_log_expection(logs, ui_log=None, ui_progress=None):
     output:
         Not described
     """
-
     logging.exception(logs)
+
+if __name__ == "__main__":
+    rq_util_log_info("test RRSDK Log")
     

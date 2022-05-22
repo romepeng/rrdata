@@ -123,5 +123,6 @@ def rq_util_code_adjust_ctp(code, source):
         else:
             return re.search(r'[a-zA-z]+', code)[0].lower() + re.search(r'[0-9]+', code)[0]
 
+
 if  __name__ == "__main__":
     print(rq_util_str_tounitecode('830226'))

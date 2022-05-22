@@ -1,4 +1,3 @@
-from psycopg2 import connect
 from sqlalchemy import create_engine
 import pandas as pd
 import tempfile
@@ -6,7 +5,7 @@ import tempfile
 import rrdata.rrdatad.index as index
 from rrdata.utils.rqLogs import rq_util_log_info, rq_util_log_expection
 from rrdata.utils.rqSetting import setting
-from rrdata.common import engine, engine_async
+from rrdata.common import engine
 
 
 def read_df_from_table(table_name, con=engine()):
@@ -19,7 +18,7 @@ def read_df_from_table(table_name, con=engine()):
         rq_util_log_expection(e)
 
 
-def read_data_from_table(sql_query, con=engine()):
+def read_datas_from_table(sql_query, con=engine()):
     """sql_query= f'SELECT * FROM {table_name} WHERE trade_date BEETWIN start_date, end_date ' """
     try:
         df = pd.read_sql_query(sql_query, con)
@@ -30,11 +29,9 @@ def read_data_from_table(sql_query, con=engine()):
 
 
 def read_large_df_from_table(sql_query, con=engine()):
-    
     """    pandas has a built-in chunksize parameter 
     that you can use to control this sort of thing
     """
-
     dfs = []
     for chunk in pd.read_sql_query(sql_query, con, chunksize=5000):
         dfs.append(chunk)
@@ -73,4 +70,4 @@ if __name__ == '__main__':
         FROM {table_name}
         WHERE trade_date BETWEEN  '{start_date}' AND '{end_date}';
     """
-    read_data_from_table(sql1)
+    read_datas_from_table(sql1)

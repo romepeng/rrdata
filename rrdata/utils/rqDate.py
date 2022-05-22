@@ -74,9 +74,9 @@ def rq_util_date_int2str(int_date):
     """
     date = str(int_date)
     if len(date) == 8:
-        return str(date[0:4] + '-' + date[4:6] + '-' + date[6:8])
-    elif len(date) == 10:
         return date
+    elif len(date) == 10:
+        return date.replace("-","")
 
 
 def rq_util_to_datetime(time):
@@ -112,7 +112,7 @@ def rq_util_datetime_to_strdate(dt):
     return:
         str
     """
-    strdate = "%04d-%02d-%02d" % (dt.year, dt.month, dt.day)
+    strdate = "%04d%02d%02d" % (dt.year, dt.month, dt.day)
     return strdate
 
 
@@ -128,7 +128,7 @@ def rq_util_datetime_to_strdatetime(dt):
     return:
         datetime
     """
-    strdatetime = "%04d-%02d-%02d %02d:%02d:%02d" % (
+    strdatetime = "%04d%02d%02d %02d:%02d:%02d" % (
         dt.year,
         dt.month,
         dt.day,
@@ -153,8 +153,8 @@ def rq_util_date_stamp(date):
     """
     if not date:
         return date
-    datestr = pd.Timestamp(date).strftime("%Y-%m-%d")
-    date = time.mktime(time.strptime(datestr, '%Y-%m-%d'))
+    datestr = pd.Timestamp(date).strftime("%Y%m%d")
+    date = time.mktime(time.strptime(datestr, '%Y%m%d'))
     return date
 
 
@@ -266,8 +266,6 @@ def rq_util_stamp2datetime(timestamp):
                 return datetime.datetime.fromtimestamp(timestamp / 1000000)
             except:
                 return datetime.datetime.fromtimestamp(timestamp / 1000000000)
-
-    #
 
 
 def rq_util_ms_stamp(ms):
@@ -617,10 +615,12 @@ def rq_util_calc_time(func, *args, **kwargs):
 
 month_data = pd.date_range(
     '1/4/2005',
-    '12/31/2023',
+    '12/31/2033',
     freq='Q-MAR'
-).astype(str).tolist()
+    ).astype(str).tolist()
 
 
 if __name__ == '__main__':
     print(rq_util_time_stamp('2017-01-01 10:25:08'))
+    print(month_data)
+    print(rq_util_date_today())

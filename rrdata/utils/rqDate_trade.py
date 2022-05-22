@@ -6,8 +6,8 @@ import pandas as pd
 
 from rrdata.utils.config_setting import setting
 from rrdata.utils.rqParameter import FREQUENCE, MARKET_TYPE
-    
-    
+
+
 def rq_util_format_date2str(cursor_date):
     """
     explanation:
@@ -123,7 +123,7 @@ def rq_util_get_last_tradedate():
     _date = _now.strftime('%Y-%m-%d')
     #print(_now, _hour, _date)
     if  _date in trade_date_sse:
-        if _hour > 16:
+        if _hour > 19:
             return trade_date_sse[trade_date_sse.index(_date)]
         else:
             return trade_date_sse[trade_date_sse.index(_date) - 1]
@@ -312,7 +312,6 @@ def rq_util_get_last_day(date, n=1):
     """
     date = str(date)[0:10]
     return rq_util_date_gap(date, n, "lt")
-
 
 
 def rq_util_get_last_datetime(datetime, day=1):
@@ -565,3 +564,12 @@ def rq_util_future_to_realdatetime(trade_datetime):
             dt if dt.time() < datetime.time(21, 0) else rq_util_get_last_datetime(dt, 1)
         )
 
+
+if __name__ == "__main__":
+    print(rq_util_get_last_tradedate())
+    print(rq_util_get_pre_trade_date('2022-05-20',3))
+    print(rq_util_get_trade_range('2022-05-18', '2022-05-20'))
+  
+    
+    
+    
