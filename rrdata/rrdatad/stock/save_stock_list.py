@@ -26,4 +26,4 @@ def save_stock_list_to_pgsql(table_name="stock_list"):
 if __name__ == '__main__':
     print(save_stock_list_to_pgsql('stock_list_test'))
     from rrdata.rrdatac.rrdataD_read_api import RrdataD
-    print(RrdataD('stock_list_test').read())   
+    print(RrdataD('stock_list_test').read().columns)   

@@ -16,7 +16,7 @@ from dataclasses import fields
 from re import I
 import pandas as pd
 from typing import List, TypeVar
-from typing_extensions import Self
+
 from pandas import DataFrame
 from rrdata.common import read_df_from_table, save_df_to_pgsql
 from rrdata.common.engine_pgsql import engine
