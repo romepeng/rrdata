@@ -15,12 +15,13 @@ from rrdata.common.get_update_tradedate import get_wanted_record_tradedate, get_
 
 from rrdata.common.read_data_from_table import read_one_row_from_table, read_one_row_from_table_check_tscode
 from rrdata.rrdatac.rrdataD_read_api import RrdataD
+from rrdata.utils.rqParameter import startDate
 
 
-startDate = "2021-04-28"
+#startDate = "2021-04-28"
 last_tradedate = rq_util_get_last_tradedate().replace("-","")
 #startDate = rq_util_get_pre_trade_date(rq_util_get_last_tradedate(),255).replace("-","")
-#print(last_tradedate, startDate)
+print(last_tradedate, startDate)
 
 
 def fetch_stock_list_tspro()-> pd.DataFrame:
@@ -71,11 +72,11 @@ def save_stock_day_hfq_to_pgsql(stock_list=None,start_date=startDate,table_name=
     t1 = time.time()
     # check stock_dat_hfq trade_date_sql for update #TODO check for stock_list every one just chang start_date_one to for and change get_wanted...
     start_date_one_list = get_wanted_record_tradedate(row="trade_date",start_date=start_date,table_name=table_name)
-    start_date_one = max(list(map(lambda x: rq_util_date_str2int(x), start_date_one_list))) if  start_date_one_list else last_tradedate
-    print(start_date_one)
-    if start_date_one == last_tradedate:
-        print("data is new, do not need update!")
-    else:
+    
+    if  start_date_one_list:
+        start_date_one =  rq_util_date_int2str(max(list(map(lambda x: rq_util_date_str2int(x), start_date_one_list)))) 
+        print(start_date_one)
+   
         for ts_code in lists:
             try:
                 print(ts_code)
@@ -87,6 +88,11 @@ def save_stock_day_hfq_to_pgsql(stock_list=None,start_date=startDate,table_name=
                 save_df_to_pgsql(data,table_name,if_exists='append')
             except Exception as e:
                 rq_util_log_expection(e)
+    
+    else:
+        #if start_date_one == last_tradedate:
+        print("data is new, do not need update!")
+ 
     t2 = time.time()
     print(f"times: {t2 - t1}")
 
@@ -118,18 +124,39 @@ def save_stock_day_bfq_to_pgsql(start_date=startDate, table_name="stock_day_bfq"
             #print(df)
             save_df_to_pgsql(df, f'{table_name}',if_exists='append')
             t1=time.time()   
-            print('save '+i+' stock day success,take '+str(round(t1-t,2))+' S')        
+            print(f"save {i} stock day bfq to table: <{table_name}> success,take '+str(round(t1-t,2))+' S")        
         except Exception as e:
             print(e)
+
+
+def fetch_stock_day_adj_change(trade_date=rq_util_get_last_tradedate().replace("-","")): #TODO
+    """for one stock ---ts_code
+    last_preclose = df.pre_close.values[-1]
+    before_close = df.shift().close.values[-1]
+    if last_preclose != before_clode:
+        update adjfactor
+    else:
+        fill with new adjfactor
+    """
+    df_last = fetch_stock_day_bfq_from_tspro(trade_date=trade_date)
+    pass
+
+def caculate_one_stock_ma_rt_oh_volchg_from_stockhfq(ts_code='000792.SZ'):
+    df = RrdataD('stock_day_hfq').read(instruments=ts_code)
+    print(df)
+    df['ma_5'] = df.pct_chg.sum()
+    print(df)
+    
+    pass
 
 
 if  __name__ == "__main__":
     #print(fetch_stock_daily_hfq_one_tspro('600060.SH'))
     #print(fetch_stock_daily_adjfactor_one())
     #print(fetch_stock_day_bfq_from_tspro(trade_date="20220518"))
-    save_stock_day_bfq_to_pgsql() 
+    #save_stock_day_bfq_to_pgsql() 
     
-    save_stock_day_hfq_to_pgsql()
+    
     
     #df = RrdataD('stock_day_hfq').read(instruments='600519.SH')
     #print(df)
@@ -141,7 +168,14 @@ if  __name__ == "__main__":
     #df = RrdataD('stock_list',engine(driver="", db_name="rrshare")).read(instruments=['000792.SZ'])
     #print(df)
     #print(read_df_from_table("stock_day"))
-    
+    t1 = time.perf_counter()
+    #df = RrdataD('stock_day_hfq',engine(driver="", db_name="rrdata")).read(start_date=last_tradedate)
+    #print(df)
+    #caculate_one_stock_ma_rt_oh_volchg_from_stockhfq()
+    #save_stock_day_bfq_to_pgsql() 
+    save_stock_day_hfq_to_pgsql()
+    t2 = time.perf_counter()
+    print(f"times:  --- {t2 - t1}")
     
     pass
 

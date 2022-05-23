@@ -123,7 +123,7 @@ def rq_util_get_last_tradedate():
     _date = _now.strftime('%Y-%m-%d')
     #print(_now, _hour, _date)
     if  _date in trade_date_sse:
-        if _hour > 19:
+        if _hour > 17:
             return trade_date_sse[trade_date_sse.index(_date)]
         else:
             return trade_date_sse[trade_date_sse.index(_date) - 1]
