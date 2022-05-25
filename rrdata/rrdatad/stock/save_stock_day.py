@@ -155,9 +155,7 @@ if  __name__ == "__main__":
     #print(fetch_stock_daily_adjfactor_one())
     #print(fetch_stock_day_bfq_from_tspro(trade_date="20220518"))
     #save_stock_day_bfq_to_pgsql() 
-    
-    
-    
+           
     #df = RrdataD('stock_day_hfq').read(instruments='600519.SH')
     #print(df)
     
@@ -169,11 +167,15 @@ if  __name__ == "__main__":
     #print(df)
     #print(read_df_from_table("stock_day"))
     t1 = time.perf_counter()
-    #df = RrdataD('stock_day_hfq',engine(driver="", db_name="rrdata")).read(start_date=last_tradedate)
-    #print(df)
+    df = RrdataD('stock_day_hfq',engine(driver="", db_name="rrddata")).read(start_date=last_tradedate)
+    print(df)
     #caculate_one_stock_ma_rt_oh_volchg_from_stockhfq()
     save_stock_day_bfq_to_pgsql() 
+<<<<<<< HEAD
     #save_stock_day_hfq_to_pgsql()
+=======
+    save_stock_day_hfq_to_pgsql()
+>>>>>>> a19a26656b82e98a24683659a0a44adbf2b1e438
     t2 = time.perf_counter()
     t = t2 - t1
     print(f"times:  --- {t}")
