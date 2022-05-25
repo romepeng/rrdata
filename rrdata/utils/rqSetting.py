@@ -5,7 +5,7 @@ import os
 from multiprocessing import Lock
 from rrdata.utils.rqLocalize import rq_path, setting_path
 from rrdata.utils.config_setting import setting
-from rrdata.utils.rqSql import rq_util_sql_postgres_setting, rq_util_sql_async_postgres_setting
+from rrdata.utils.rqSql import rq_util_sql_postgres_setting
 
 # rrsdk or rrdata有一个配置目录存放在 ~/.rrsdk
 # 如果配置目录不存在就创建，主要配置都保存在config.json里面
@@ -156,10 +156,7 @@ class rq_Setting():
     def client(self):
         return rq_util_sql_postgres_setting(self.postgres_uri)
 
-    @property
-    def client_async(self):
-        return rq_util_sql_async_postgres_setting(self.postgres_uri)
 
 rqSETTING = rq_Setting()
 DATABASE = rqSETTING.client
-DATABASE_ASYNC = rqSETTING.client_async
+

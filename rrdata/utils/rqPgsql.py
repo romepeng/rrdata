@@ -4,18 +4,16 @@ import time
 import pandas as pd
 import psycopg2
 from sqlalchemy import create_engine, engine_from_config
-import logging
+#import logging
 
 from rrdata.utils.rqSingleton import  ConSqlDb
 from rrdata.utils.rqLogs import (rq_util_log_debug, rq_util_log_expection,
                                              rq_util_log_info)
 from rrdata.utils.rqDate_trade import (rq_util_get_trade_range, rq_util_get_last_tradedate, 
                         rq_util_get_pre_trade_date, setting)
-from rrdata.utils.rqSetting import DATABASE, POSTGRESQL_URI
 
-logging.basicConfig(level=logging.INFO, format=' %(asctime)s- %(levelname)s-%(message)s')
+
 password_pgsql = setting['PGSQL_PASSWORD']
-pgsql_uri = setting['POSTGRESQL_URI']
 host_db_ip = setting['IP_DATABASE_ALIYUN']
 port_psql = 5432
 

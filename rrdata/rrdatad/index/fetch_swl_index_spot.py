@@ -97,14 +97,17 @@ if __name__ == '__main__':
     #print(sw_index_spot(level="L1"))
     import datetime
     import time
-
+    """
     while 1:
         print('swl_L2_spot: \n')
         print(sw_index_spot(level="L2"))
         
         print(datetime.datetime.now())
         time.sleep(20)
+    """
     
-
+    print(sw_index_spot(level="L1"))
+    
+    print(sw_index_spot(level="L2"))
 
 

@@ -87,7 +87,9 @@ def sw_index_class_all():
 
 
 if __name__ == '__main__':
+    print(sw_index_info("L1"))
     print(sw_index_info("L2"))
+    print(sw_index_info("L3"))
     print(sw_index_class_all())
   
 

@@ -1,27 +1,35 @@
-from dataclasses import replace
 from functools import reduce
-from heapq import merge
-from numpy import NaN
 import pandas as pd 
-from rrdata.common import save_df_to_pgsql, engine
+
+from rrdata.common import engine
+from rrdata.rrdatad.rrdataD_save_api import RrdataDSave
+
 import rrdata.rrdatad.index  as index
 from rrdata.utils.rqLogs import rq_util_log_info
 from rrdata.utils.rqParameter import SWL_LEVEL
+from rrdata.rrdatad.index.fetch_swsindex_stock_class_all import fetch_stock_class_cn_all
 
 
-def save_index_sw_class_pgsql(table_name='swl_list'):
+def save_index_sw_class_pgsql(table_name='swl_list', con=engine()):
     data = index.sw_index_class_all()
     #print(data)
-    save_df_to_pgsql(data, table_name, engine)
+    RrdataDSave(table_name, con).save(data)
     #print(read_data_from_pg("swl_list"))
 
 
-def save_index_sw_spot(table_name="swl_spot", level =""):
+def save_all_stock_belong_swl(table_name='stock_belong_swl', con=engine()):
+    data = fetch_stock_class_cn_all()
+    RrdataDSave(table_name,con).save(data)
+    
+
+
+def save_index_sw_spot(table_name="swl_spot", level ="", con=engine()):
     """ save swl index L1, L2 realtime price
     """
     for l in ["L1", "L2"]:
         data = index.sw_index_spot(l)
-        save_df_to_pgsql(data, f"{table_name}_{l}", engine)
+        #save_df_to_pgsql(data, f"{table_name}_{l}", engine)
+        RrdataDSave(table_name, con).save(data)
 
 
 def  save_index_sw_cons_one_level(table_name='swl_cons',level=""):
@@ -49,7 +57,7 @@ def  save_index_sw_cons_one_level(table_name='swl_cons',level=""):
     df.sort_values(by=['stock_code', 'in_time'], ascending=[True, True], inplace=True)
     df.drop_duplicates(subset=['stock_code'], keep='last', inplace=True)
     rq_util_log_info(df)
-    save_df_to_pgsql(df, f'{table_name}_{level}', engine)
+    RrdataDSave(f'{table_name}_{level}').save(df)
 
 
 def save_swl_cons_all_level(table_name='swl_cons_all'):
@@ -71,16 +79,16 @@ def save_swl_cons_all_level(table_name='swl_cons_all'):
     df_m = pd.merge(df_list[0], df_list[1],  how='outer')
     df = pd.merge(df_m, df_list[2], how='outer')
     rq_util_log_info(df)
-    save_df_to_pgsql(df, 'swl_cons_all', con=engine)
+    RrdataDSave('swl_cons_all').save(df, con=engine())
 
 
 if  __name__ == '__main__':
-    save_index_sw_class_pgsql()
-    save_index_sw_spot()
-    for l in SWL_LEVEL().LEVEL:
-        save_index_sw_cons_one_level('swl_cons', l)
-        
-    save_swl_cons_all_level()
+    #save_index_sw_class_pgsql()
+    #save_index_sw_spot()
+    #for l in SWL_LEVEL().LEVEL:
+    #    save_index_sw_cons_one_level('swl_cons', l)
+    save_all_stock_belong_swl()      
+  
     
 
 

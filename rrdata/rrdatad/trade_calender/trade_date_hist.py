@@ -12,7 +12,7 @@ import pandas as pd
 import requests
 from py_mini_racer import py_mini_racer
 
-from  .cons import hk_js_decode
+from  rrdata.rrdatad.trade_calender.cons import hk_js_decode
 
 def trade_date_sina() -> pd.DataFrame:
     """
@@ -36,6 +36,7 @@ def trade_date_sina() -> pd.DataFrame:
     temp_list.sort()
     temp_df = pd.DataFrame(temp_list, columns=["trade_date"])
     return temp_df
+
 
 
 if __name__ == "__main__":

@@ -172,10 +172,11 @@ if  __name__ == "__main__":
     #df = RrdataD('stock_day_hfq',engine(driver="", db_name="rrdata")).read(start_date=last_tradedate)
     #print(df)
     #caculate_one_stock_ma_rt_oh_volchg_from_stockhfq()
-    #save_stock_day_bfq_to_pgsql() 
-    save_stock_day_hfq_to_pgsql()
+    save_stock_day_bfq_to_pgsql() 
+    #save_stock_day_hfq_to_pgsql()
     t2 = time.perf_counter()
-    print(f"times:  --- {t2 - t1}")
+    t = t2 - t1
+    print(f"times:  --- {t}")
     
     pass
 

@@ -12,13 +12,11 @@
     历史数据
     DataFrame
 """
-from dataclasses import fields
-from re import I
 import pandas as pd
 from typing import List, TypeVar
-from typing_extensions import Self
+
 from pandas import DataFrame
-from rrdata.common import read_df_from_table, save_df_to_pgsql
+from rrdata.utils.rqDate_trade import rq_util_get_last_tradedate,rq_util_get_pre_trade_date
 from rrdata.common.engine_pgsql import engine
 
 
@@ -28,6 +26,9 @@ class RrdataD(object):
         also add  can change:
         source database/sql_driver
         SELECT DISTINCT --only
+        start_date:str = '20220519"
+        default None (all)  --> out whole table , 
+        count or start_date or trade_date
     """
     def __init__(self,
                 table_name, 
@@ -40,8 +41,9 @@ class RrdataD(object):
     def __repr__(self) -> str:  # name 
         return f"<{self.__class__.__name__} table_name={self.table_name}>"
 
-    def read(self, instruments: List=None,start_date: str=None, end_date: str=None,fields: List=None) -> DataFrame:
-        """   default None (all)  --> out whole table """
+    def read(self, instruments: List=None,start_date: str=None, end_date: str=None, trade_date:str=None,\
+            count:int=None,fields: List=None) -> DataFrame:
+       
         if fields:
             field =  ','.join(fields) if isinstance(fields, list)  else fields.replace(' ','') 
         else:
@@ -50,11 +52,16 @@ class RrdataD(object):
                         FROM {self.table_name}
                         """
         if start_date:
-            sql_query += f"WHERE trade_date >= '{start_date}' "
+            sql_query += f"WHERE trade_date >= '{start_date}' " 
         if end_date:
             sql_query += f"AND trade_date <= '{end_date}' "
+        elif trade_date:
+            sql_query += f" WHERE trade_date = '{trade_date}' "
+        elif count:
+            sql_query += f"WHERE trade_date >= '{rq_util_get_pre_trade_date(rq_util_get_last_tradedate(), count)}' "
+            
         if instruments:
-            iterms = "AND" if start_date else "WHERE" 
+            iterms = "AND" if start_date or count or trade_date else "WHERE" 
             if isinstance(instruments, list):
                 instrument = "','".join(instruments)
             else:
@@ -75,6 +82,8 @@ if  __name__ == "__main__":
     #print(RrdataD('stock_spot').read(fields="code,pb, pe"))
     print(RrdataD('stock_day_test').read(start_date='2022-05-16', fields="ts_code , trade_date,close"))
     #print(RrdataD('stock_day_test').read(instruments=["000792.SZ", "600519.SH"]))
-    #print(RrdataD('stock_day_test').read(instruments=" 000792.SZ , 600519.SH "))
+    print(RrdataD('stock_day_bfq').read(instruments=" 000792.SZ ,600887.SH, 600519.SH ", count=15))
 
-    #print(RrdataD('stock_day_test').read(start_date='2022-05-16'))
+    #print(RrdataD('stock_day_hfq').read(trade_date='20220523'))
+    #print(RrdataD('stock_day_hfq').read(count=3))
+    
