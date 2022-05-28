@@ -2,7 +2,7 @@
 from typing import List
 import pandas as pd
 
-from rrdata.utils.rqTusharepro import pro
+from rrdata.rrdatad.stock.tusharepro import pro
 from rrdata.rrdatad.stock.stock_hist_em import  code_id_map_em
 from rrdata.utils.rqCode import rq_util_str_tounitecode
 
