@@ -59,11 +59,11 @@ def sw_index_spot(level="L1") -> pd.DataFrame:
     result = []
     if level == 'L1':
         N = 3
-        N_pages = 28
+        N_pages = 32
         SWL_INDEX = SWL1_INDEX
     elif level == 'L2':
         N= 8
-        N_pages = 124
+        N_pages = 134
         SWL_INDEX = SWL2_INDEX
     else:
         print("No the sw index level !")
@@ -109,5 +109,5 @@ if __name__ == '__main__':
     print(sw_index_spot(level="L1"))
     
     print(sw_index_spot(level="L2"))
-
-
+    
+    sw_index_spot(level="L2").to_csv('/mnt/g/data/rrdata/sw_L2_spot.csv', encoding='utf_8_sig')

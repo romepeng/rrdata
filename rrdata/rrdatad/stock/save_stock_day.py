@@ -171,11 +171,8 @@ if  __name__ == "__main__":
     print(df)
     #caculate_one_stock_ma_rt_oh_volchg_from_stockhfq()
     save_stock_day_bfq_to_pgsql() 
-<<<<<<< HEAD
     #save_stock_day_hfq_to_pgsql()
-=======
     save_stock_day_hfq_to_pgsql()
->>>>>>> a19a26656b82e98a24683659a0a44adbf2b1e438
     t2 = time.perf_counter()
     t = t2 - t1
     print(f"times:  --- {t}")

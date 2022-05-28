@@ -15,7 +15,6 @@ def fetch_stock_class_cn_all():
     """ from swsindex.com table download SWI_2021 
         https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
     """
-    file = "/home/romep/rrdata/rrdata/rrdatad/index/stock_swindex_class_all.csv"
     path_file = u"/home/romep/rrdata/rrdata/rrdatad/index/swsindex/swsindex_all_stock_class_new.xlsx"
     df_all = pd.read_excel(path_file)
     col_old = ['交易所', '行业代码', '股票代码', '公司简称', '新版一级行业', '新版二级行业', '新版三级行业']
@@ -39,24 +38,14 @@ def fetch_stock_class_cn_all():
     return df
 
 
-def fetch_swlindex_name(swl_level=None)-> Dict:
-    stock_swl = fetch_stock_class_cn_all()
-    swl_L1 = set(stock_swl['name_L1'].dropna().values)
-    swl_L2 = set(stock_swl['name_L2'].dropna().values)
-    swl_L3 = set(stock_swl['name_L3'].dropna().values)
-    keys = ["L1","L2","L3"]
-    values = [swl_L1, swl_L2, swl_L3]
-    swl_dict = dict(zip(keys, values))
-    #print(swl_dict)
-    if swl_level:
-        return swl_dict.get(swl_level)
-    else:
-        return swl_dict
+def fetch_swlindex_name(swl_level=None)-> pd.DataFrame:
+    file =      u"/home/romep/rrdata/rrdata/rrdatad/index/swsindex/SwClassCode_2021.xlsx"
+    df = pd.read_excel(file)
+    print(df)
+    df.rename(columns={'行业代码':'industry_code', '一级行业名称':'name_L1','二级行业名称':'name_L2', '三级行业名称':'name_L3'}, inplace=True)
+    
+    return df
                 
-
-    
-    
-
 
 def swl_index_to_name(index_symbol="", swl_level="", out_type=""):
     """index_symbol like 801020 not index_code 801020.SI
@@ -106,16 +95,20 @@ if __name__ == "__main__":
     #print(df)
     print(df[df.symbol== '000792'])
     print(swl_index_to_name().sort_values(by='index_symbol'))
-    print(fetch_swlindex_name("L2"))
+    #print(fetch_swlindex_name("L2"))
     print(len(fetch_swlindex_name("L1")))
     print(len(fetch_swlindex_name("L2")))
     print(len(fetch_swlindex_name("L3")))
-    print(swl_index_to_name())
+    #print(swl_index_to_name())
     
     
-
+    #fetch_swlindex_name().to_csv('/mnt/g/data/rrdata/swl_class.csv', encoding='utf_8_sig')
+    swl_class =  fetch_swlindex_name()
+    swl_class_L2 = swl_class[['industry_code', 'name_L2']].dropna().drop_duplicates(subset="name_L2")
+    swl_class_L3 = swl_class[['industry_code', 'name_L3']].dropna().drop_duplicates(subset="name_L3")
+    print(swl_class_L2)
+    swl_class_L2.to_csv('/mnt/g/data/rrdata/swl_class_L2.csv', encoding='utf_8_sig')
     
-
 
 
 

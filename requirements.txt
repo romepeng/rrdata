@@ -11,7 +11,8 @@ streamlit
 openpyxl
 pysnowball
 bs4
-tushare
+xlrd
+
 
 
 

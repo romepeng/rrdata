@@ -8,7 +8,7 @@ host = setting["IP_DATABASE_ALIYUN"]
 passwd = setting["PGSQL_PASSWORD"]
 database_str = f"postgres:{passwd}@{host}:5432"
 database_dns = f"postgresql://postgres:{passwd}@{host}:5432"
-rq_util_log_info(database_dns)
+#rq_util_log_info(database_dns)
 
 
 def engine(driver="psycopg2", db_name="rrdata"):

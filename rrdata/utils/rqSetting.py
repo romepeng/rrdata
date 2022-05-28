@@ -11,14 +11,10 @@ from rrdata.utils.rqSql import rq_util_sql_postgres_setting
 # 如果配置目录不存在就创建，主要配置都保存在config.json里面
 # 文件的创建步骤，他还会创建一个setting的dir
 
-#DEFAULT_POSTGRES = os.getenv('POSTGRESQL', 'localhost')
-#print(DEFAULT_POSTGRES)
-#DEFAULT_DB_URI = 'postgresql://{}:5432'.format(DEFAULT_POSTGRES)
-#print(DEFAULT_DB_URI)
 POSTGRESQL_URI = setting["POSTGRESQL"]
-print(POSTGRESQL_URI)
+#print(POSTGRESQL_URI)
 CONFIGFILE_PATH = '{}{}{}'.format(setting_path, os.sep, 'config.ini')
-print(CONFIGFILE_PATH)
+#print(CONFIGFILE_PATH)
 
 class rq_Setting():
 
@@ -46,19 +42,11 @@ class rq_Setting():
             res =POSTGRESQL_URI
         return res
 
+
     def get_config(self,
             section='POSTGRESQL',
             option='uri',
-            default_value=POSTGRESQL_URI
-            ):
-        """[summary]
-        Keyword Arguments:
-            section {str} -- [description] (default: {'POSTGRESQL'})
-            option {str} -- [description] (default: {'uri'})
-            default_value {[type]} -- [description] (default: {DEFAULT_DB_URI})
-        Returns:
-            [type] -- [description]
-        """
+            default_value=POSTGRESQL_URI):
         try:
             config = configparser.ConfigParser()
             config.read(CONFIGFILE_PATH)
@@ -123,17 +111,6 @@ class rq_Setting():
             DEFAULT_VALUE,
             method='get'
         ):
-        """[summary]
-        Arguments:
-            config {[type]} -- [description]
-            section {[type]} -- [description]
-            option {[type]} -- [description]
-            DEFAULT_VALUE {[type]} -- [description]
-        Keyword Arguments:
-            method {str} -- [description] (default: {'get'})
-        Returns:
-            [type] -- [description]
-        """
         try:
             if isinstance(DEFAULT_VALUE, str):
                 val = DEFAULT_VALUE
@@ -157,6 +134,6 @@ class rq_Setting():
         return rq_util_sql_postgres_setting(self.postgres_uri)
 
 
-rqSETTING = rq_Setting()
-DATABASE = rqSETTING.client
+#rqSETTING = rq_Setting()
+#DATABASE = rqSETTING.client
 
