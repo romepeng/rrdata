@@ -27,7 +27,7 @@ class RrdataDSave(object):
     def save(self, data):
         try:
             data.to_sql(self.table_name, con=self.engine, if_exists=self.if_exists, index=False)
-            print(f"Saved {len(data)} rows to Table:<{self.table_name}>/DB:<{self.engine}>, finish !!!")
+            print(f"Saved {len(data)} rows to Table:<{self.table_name}>/DB:<{self.engine}>, finish !")
         except Exception as e:
             print(e)
 

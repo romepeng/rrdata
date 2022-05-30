@@ -16,31 +16,35 @@ from rrdata.rrdatac.rrdataD_read_api import RrdataD
 from rrdata.rrdatad.rrdataD_save_api import RrdataDSave
 from rrdata.rrdatad.stock.fetch_stock_day import fetch_stock_list_tspro,fetch_stock_daily_hfq_one_tspro
 from rrdata.utils.rqSetting import setting
+from rrdata.rrdatad.stock.stock_zh_a_hist_em import stock_zh_a_hist_em
+from rrdata.utils.rqParameter import startDate
 
-
+print(startDate)
 
 
 q = queue.Queue()
 workers = []
-NUM_THREADS = 25
+NUM_THREADS = 50
+
 
 
 df = RrdataD('stock_list').read()
 df.sort_values(by="ts_code", inplace=True)
 print(df.head())
-stock_list = df.ts_code.values
-#stock_dict = df['ts_code'].to_dict()
-#print(stock_list[1])
+stock_list = df.symbol.values
 NUM = len(stock_list) // NUM_THREADS
-print(NUM)
+#print(NUM)
 
 
 def get_stock_day_save_tosql(queue):
     id = queue.get()
     print(f"get id : -- {id}")
-    data = fetch_stock_daily_hfq_one_tspro(stock_list[id])
-    #print(data)
-    RrdataDSave("stock_day_queue_2",if_exists='append').save(data)
+    try:
+        data = stock_zh_a_hist_em(stock_list[id], start_date=startDate)
+        
+        RrdataDSave("stock_day_em_bfq",if_exists='append').save(data)
+    except:
+        pass
 
 
 def main():
@@ -49,7 +53,7 @@ def main():
             worker = threading.Thread(target=get_stock_day_save_tosql, args=(q,))
             worker.start()
             workers.append(worker)
-            if (i * NUM + j - 1) >= len(stock_list):
+            if (i * NUM + j ) >= len(stock_list):
                 break
             
     for i in range(NUM_THREADS + 1):
@@ -60,17 +64,13 @@ def main():
             q.put(id)
             if id >= len(stock_list):
                 break
-        t = time.perf_counter() - t1
-        if t < 60:
-            time.sleep(60 - t)
-        else:
-            continue
-        
+                   
     for w in workers:
         w.join()
         
 
 if __name__ == "__main__":
-    main()
+
+
    
-    print(RrdataD('stock_day_queue_2').read(instruments='000002.SZ'))
+    print(RrdataD('stock_day_em_bfq').read(instruments='000792'))

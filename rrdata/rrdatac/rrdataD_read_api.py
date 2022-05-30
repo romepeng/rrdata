@@ -67,8 +67,12 @@ class RrdataD(object):
             else:
                 instruments = instruments.replace(' ','')
                 instrument = "','".join(instruments.split(",")) #map(lambda x: ",".join('x'), instruments)
-            sql_query +=  f"{iterms} ts_code in ('{instrument}')"
-        #print(sql_query)
+            try:
+                sql_query +=  f"{iterms} ts_code in ('{instrument}')"
+            except:
+                sql_query +=  f"{iterms} symbol in ('{instrument}')"
+            
+        print(sql_query)
         try:
             return pd.read_sql(sql_query, self.engine)
         except Exception as E:
@@ -85,5 +89,5 @@ if  __name__ == "__main__":
     print(RrdataD('stock_day_bfq').read(instruments=" 000792.SZ ,600887.SH, 600519.SH ", count=15))
 
     #print(RrdataD('stock_day_hfq').read(trade_date='20220523'))
-    #print(RrdataD('stock_day_hfq').read(count=3))
+    print(RrdataD('stock_day_em_bfq').read(instruments='000792'))
     

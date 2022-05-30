@@ -34,12 +34,12 @@ NUM = len(stock_list) // NUM_THREADS
 print(NUM)
 
 
-def get_stock_day_save_tosql(queue):
+def get_stock_day_save_tosql(queue, table_name='stock_day_hfq'):
     id = queue.get()
     print(f"get id : -- {id}")
     data = fetch_stock_daily_hfq_one_tspro(stock_list[id])
     #print(data)
-    RrdataDSave("stock_day_queue_2",if_exists='append').save(data)
+    RrdataDSave(table_name,if_exists='append').save(data)
 
 
 def main():
@@ -48,7 +48,7 @@ def main():
             worker = threading.Thread(target=get_stock_day_save_tosql, args=(q,))
             worker.start()
             workers.append(worker)
-            if (i * NUM + j - 1) >= len(stock_list):
+            if (i * NUM + j) > len(stock_list):
                 break
             
     for i in range(NUM_THREADS + 1):
@@ -72,4 +72,4 @@ def main():
 if __name__ == "__main__":
     main()
    
-    print(RrdataD('stock_day_queue_2').read(instruments='000002.SZ'))
+    print(RrdataD('stock_day_hfq').read(instruments='000792.SZ'))

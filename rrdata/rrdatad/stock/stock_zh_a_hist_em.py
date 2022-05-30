@@ -28,8 +28,6 @@ columns_new1 = [
 """
 import requests
 import pandas as pd
-from sqlalchemy import column
-
 
 
 def stock_zh_a_spot_em() -> pd.DataFrame:
@@ -225,9 +223,9 @@ def code_id_map_em() -> dict:
 
 
 def stock_zh_a_hist_em(
-        symbol: str = "000016",
+        symbol: str = "600519",
         period: str = "daily",
-        start_date: str = "19700101",
+        start_date: str = "20050101",
         end_date: str = "22220101",
         adjust: str = "qfq",
 ) -> pd.DataFrame:
@@ -292,8 +290,9 @@ def stock_zh_a_hist_em(
     temp_df['涨跌幅'] = pd.to_numeric(temp_df['涨跌幅'])
     temp_df['涨跌额'] = pd.to_numeric(temp_df['涨跌额'])
     temp_df['换手率'] = pd.to_numeric(temp_df['换手率'])
-
+    
     temp_df.columns = [
+        
         "trade_date",
         "open",
         "close",
@@ -304,8 +303,22 @@ def stock_zh_a_hist_em(
         "amplitude",
         "chg_pct",
         "change",
-        "turnover"
+        "turnover",       
     ]
+    temp_df['symbol'] = symbol
+    temp_df = temp_df[['symbol',
+        "trade_date",
+        "open",
+        "close",
+        "high",
+        "low",
+        "vol",
+        "amount",
+        "amplitude",
+        "chg_pct",
+        "change",
+        "turnover"  ]]
+    
     return temp_df
 
 
@@ -533,10 +546,10 @@ if __name__ == "__main__":
     stock_zh_a_hist_df = stock_zh_a_hist_em(
         symbol="600519", period='daily', start_date="20210101", end_date="20221231", adjust="hfq")
     print(stock_zh_a_hist_df)
-
+    '''
     stock_zh_a_hist_min_em_df = stock_zh_a_hist_min_em(symbol="833454")
     print(stock_zh_a_hist_min_em_df)
-
+  
     stock_zh_a_hist_pre_min_em_df = stock_zh_a_hist_pre_min_em(symbol="833454")
     print(stock_zh_a_hist_pre_min_em_df)
 
@@ -545,5 +558,7 @@ if __name__ == "__main__":
 
     stock_zh_a_hist_df = stock_zh_a_hist_em(symbol="833454", period="daily", start_date="20170301", end_date='20211115', adjust="hfq")
     print(stock_zh_a_hist_df)
+    '''
+
 
    
