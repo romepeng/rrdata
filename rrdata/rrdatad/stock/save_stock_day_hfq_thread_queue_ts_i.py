@@ -14,32 +14,55 @@ import time
 
 from rrdata.rrdatac.rrdataD_read_api import RrdataD
 from rrdata.rrdatad.rrdataD_save_api import RrdataDSave
-from rrdata.rrdatad.stock.fetch_stock_day import fetch_stock_list_tspro,fetch_stock_daily_hfq_one_tspro
+from rrdata.rrdatad.stock.fetch_stock_day import fetch_stock_list_tspro
 from rrdata.utils.rqSetting import setting
+from rrdata.utils.rqParameter import startDate
 
+# daily: ts.pro_bar(ts_code=ts_code, asset="E", adj='hfq', start_date=startDate, end_date=None,adjfactor=True)
+import tushare as ts1 
+import tushare as ts2
 
+try:
+    token1 = setting['TSPRO_TOKEN']
+    ts1.set_token(token1)
+    pro1 = ts1.pro_api()
+    #print('tushare token set ok , can use pro as api!')
+except Exception as e:
+    print(e)
+
+try:
+    token2 = setting['TSPRO_RBOBO']
+    ts2.set_token(token2)
+    pro2 = ts2.pro_api()
+    #print('tushare token set ok , can use pro as api!')
+except Exception as e:
+    print(e)
 
 q = queue.Queue()
 workers = []
-NUM_THREADS = 25
+NUM_THREADS = 3
 
 
 df = RrdataD('stock_list').read()
-df.sort_values(by="ts_code", inplace=True)
-print(df.head())
+df = df.sort_values(by="symbol").head(450)
+print(len(df))
 stock_list = df.ts_code.values
-#stock_dict = df['ts_code'].to_dict()
-#print(stock_list[1])
+#print(stock_list)
+
 NUM = len(stock_list) // NUM_THREADS
 print(NUM)
 
 
-def get_stock_day_save_tosql(queue, table_name='stock_day_hfq'):
+def get_stock_day_save_tosql(queue, table_name='stock_day_hfq_test'):
     id = queue.get()
     print(f"get id : -- {id}")
-    data = fetch_stock_daily_hfq_one_tspro(stock_list[id])
-    #print(data)
-    RrdataDSave(table_name,if_exists='append').save(data)
+    try:
+        ts = ts1 if (id % 2) == 0 else ts2
+        data = ts.pro_bar(ts_code=stock_list[id], asset="E", adj='hfq', start_date=startDate, end_date=None,adjfactor=True)
+        RrdataDSave(table_name,if_exists='append').save(data)
+    except Exception as E:
+        print(E)
+    
 
 
 def main():
@@ -48,29 +71,27 @@ def main():
             worker = threading.Thread(target=get_stock_day_save_tosql, args=(q,))
             worker.start()
             workers.append(worker)
-            if (i * NUM + j) >= len(stock_list):
+            if (i * NUM + j) >= len(stock_list) :
                 break
-            else:
-                continue
-            
+       
     for i in range(NUM_THREADS + 1):
         t1 = time.perf_counter()
-        
         for j in range(NUM):
-            id = i * NUM + j
-            #print(id)
+            id = i * NUM + j 
             q.put(id)
-            if (id + 2) >= len(stock_list):
+            #print(id)
+            if (id + 2)  >  len(stock_list):
                 break
             else:
                 continue
-            
         t = time.perf_counter() - t1
-        if t < 60:
+        print(t)
+     
+        if (t < 60): 
             time.sleep(60 - t)
         else:
             continue
-        
+      
     for w in workers:
         w.join()
         
@@ -78,4 +99,4 @@ def main():
 if __name__ == "__main__":
     main()
    
-    print(RrdataD('stock_day_hfq').read(instruments='000792.SZ'))
+    #print(RrdataD('stock_day_hfq_test').read(instruments='000792.SZ'))

@@ -1,6 +1,6 @@
 import time
 import pandas as pd
-
+from typing import Optional, List,Dict, Tuple
 
 import tushare as ts
 from rrdata.rrdatad.stock.tusharepro import pro
