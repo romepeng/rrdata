@@ -6,8 +6,13 @@ count = 5
 last_tradedate = rq_util_get_last_tradedate()
 start_date = rq_util_get_pre_trade_date(last_tradedate, count)
 
-#print(RrdataD("adj_factor").read(instruments="000792.SZ,600519.SH,000002.SZ,000001.SZ",\
-#      start_date='2022-05-17',end_date=rq_util_get_last_tradedate()))
-#print(RrdataD("adj_factor").read(start_date='2022-05-16'))
-print(RrdataD("stock_day_hfq").read(start_date=last_tradedate,fields="trade_date,ts_code,adj_factor"))
+def get_stock_adjfactor(instruments=None,trade_date=None,start_date=None, end_date=None,count=None,
+                        fields="trade_date,ts_code,adj_factor"):
+    return RrdataD("stock_day_hfq").read(instruments=instruments,trade_date=trade_date,
+                                         start_date=start_date,
+                                         end_date=end_date,fields=fields)
+
+if __name__ == "__main__":
+    print(get_stock_adjfactor(instruments='000792.SZ'))
+    print(get_stock_adjfactor(trade_date="20220527"))
 

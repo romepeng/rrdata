@@ -14,7 +14,7 @@ class RrdataDSave(object):
     """
     def __init__(self, table_name, 
                con=engine(driver="", db_name="rrdata"),
-               if_exists='replace' ):
+               if_exists='append' ):
         """ driver: ""-default - poasgresql/ psycopg2   db_name  rrdata/rrshare/rrfactor"""
         self.table_name = table_name
         self.engine = con
@@ -26,6 +26,7 @@ class RrdataDSave(object):
    
     def save(self, data):
         try:
+            #print(f"try to save data to {self.__repr__}")
             data.to_sql(self.table_name, con=self.engine, if_exists=self.if_exists, index=False)
             print(f"Saved {len(data)} rows to Table:<{self.table_name}>/DB:<{self.engine}>, finish !")
         except Exception as e:

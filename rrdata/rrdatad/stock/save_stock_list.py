@@ -4,7 +4,7 @@ import pandas as pd
 from rrdata.utils.rqLogs import rq_util_log_info
 from rrdata.rrdatad.stock import pro
 #from rrdata.rrdatad.stock.fetch_stock_list import fetch_stock_list_tusharepro
-from rrdata.common import save_df_to_pgsql
+from rrdata.rrdatad.rrdataD_save_api import RrdataDSave
 
 
 def save_stock_list_to_pgsql(table_name="stock_list"):
@@ -17,11 +17,11 @@ def save_stock_list_to_pgsql(table_name="stock_list"):
     stock_list['code']=stock_list['symbol']
     #rq_util_log_info(stock_list)
     try:
-        save_df_to_pgsql(stock_list, table_name, db_name="rrdata")
-        #print(len(stock_list))
+        RrdataDSave(table_name,if_exists='append').save(stock_list)
     except Exception as e:        
         print(e)
     return stock_list
+
 
 if __name__ == '__main__':
     print(save_stock_list_to_pgsql('stock_list_test'))

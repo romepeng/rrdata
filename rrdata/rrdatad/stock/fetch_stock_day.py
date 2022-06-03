@@ -1,4 +1,6 @@
+from cmath import nan
 import time
+from turtle import Turtle
 import pandas as pd
 from typing import Optional, List,Dict, Tuple
 
@@ -36,9 +38,12 @@ def fetch_stock_list_tspro()-> pd.DataFrame:
     return stock_list
 
 
+def fetch_adj_factor_tspro(trade_date=last_tradedate): #very importtant
+    return pro.query('adj_factor',trade_date=last_tradedate)
+    
+
 def fetch_stock_daily_hfq_one_tspro(ts_code='600519.SH',asset="E", adj='hfq', start_date=startDate, end_date=None,adjfactor=True):
     return ts.pro_bar(ts_code=ts_code, asset=asset,adj=adj, start_date=start_date, end_date=end_date, adjfactor=adjfactor) 
-
 
 def fetch_stock_daily_adjfactor_one(symbol="600519", period="daily",start_date=startDate, end_date="20321231", adj="hfq", adjfactor=True):
     """  from tushare pro ts.pro_bar(adj="hfq', adjfactor=True)"""
@@ -59,6 +64,84 @@ def fetch_stock_day_bfq_from_tspro(ts_code=None,trade_date=rq_util_get_last_trad
             time.sleep(1)
         else:
             return df
+        
+
+def fetch_stock_daily_hfq_fillna_tspro(ts_code='600519.SH',asset="E", adj='hfq', 
+                                       start_date=startDate, end_date=None,adjfactor=True):
+    
+    trade_list = rq_util_get_trade_range(start_date,rq_util_get_last_tradedate())
+    trade_list = list(map(lambda x: x.replace("-",""), trade_list))
+    """
+    cal = pro.trade_cal(exchange='SSE', start_date=start_date, end_date=end_date)
+    start_date = start_date.replace("-","")
+    end_date = last_tradedate 
+    trade_cal = cal[cal["is_open"] == 1] # and  
+    trade_cal = trade_cal[(trade_cal['cal_date'] >= start_date)  & (trade_cal['cal_date'] <= last_tradedate)]
+    #trade_cal = trade_cal['cal_date']
+    print(start_date)
+    print(trade_cal)
+    """
+    
+    df_list_date = fetch_stock_list_tspro()[['ts_code','list_date']]
+    list_date = df_list_date[df_list_date.ts_code == ts_code]['list_date'].values[0]
+    #print(list_date)
+    
+    #df_trade_date = trade_cal[trade_cal['cal_date'] >= list_date][['cal_date']]
+    #df_trade_date.rename(columns={'cal_trade':'trade_date'},inplace=True)
+    #print(df_trade_date)
+    trade_date_code = [x  for x in trade_list  if x >= list_date]
+    #print(trade_date_code)
+
+    
+    df_one = ts.pro_bar(ts_code=ts_code, asset=asset,adj=adj, start_date=start_date, end_date=end_date, adjfactor=adjfactor)
+    df_one = df_one.drop(columns='change').sort_values(by='trade_date', ascending=True)
+    
+    print(df_one)
+    
+    fill_row = [x for x in trade_date_code if x not in df_one.trade_date.values]
+    print(fill_row)
+    
+    df_fill = pd.DataFrame(data=trade_date_code, columns=['trade_date'])
+    df_fill['ts_code'] = ts_code
+    #for row in  [ "pct_chg", "vol", "amount"]:
+    #    df_fill[row] = 0
+    print(df_fill)
+        
+    df_one= pd.merge(df_fill, df_one,how='left')
+    df_one.fillna({'pct_chg':0,'vol':0,'amount':0},inplace=True)
+    df_one.fillna(method='ffill',inplace=True)
+    print(df_one)
+    
+    return df_one
+    
+
+     
+
+def fetch_stock_daily_bfq_adj_fillna_tspro(ts_code=None,start_date=startDate, end_date=None,adjfactor=True):
+    
+    trade_list = rq_util_get_trade_range(start_date,rq_util_get_last_tradedate())
+    trade_list = list(map(lambda x: x.replace("-",""), trade_list))
+    
+    df_list_date = fetch_stock_list_tspro()[['ts_code','list_date']]
+    list_date = df_list_date[df_list_date.ts_code == ts_code]['list_date'].values[0]
+    #print(list_date)
+    
+    trade_date_code = [x  for x in trade_list  if x >= list_date]
+    #print(trade_date_code)
+
+    
+    
+    fill_row = [x for x in trade_date_code if x not in df_one.trade_date.values]
+    print(fill_row)
+    
+    df_fill = pd.DataFrame(data=trade_date_code, columns=['trade_date'])
+    df_fill['ts_code'] = ts_code
+    #for row in  [ "pct_chg", "vol", "amount"]:
+    #    df_fill[row] = 0
+    print(df_fill)
+        
+    
+    
 
 if  __name__ == "__main__":
     #print(fetch_stock_daily_hfq_one_tspro('600060.SH'))
@@ -67,12 +150,14 @@ if  __name__ == "__main__":
            
     #print(read_df_from_table("stock_day"))
     t1 = time.perf_counter()
-    print(fetch_stock_list_tspro())
-    print(fetch_stock_daily_hfq_one_tspro('600519.SH'))
+    #print(fetch_stock_list_tspro())
+    #print(fetch_stock_daily_hfq_one_tspro('600519.SH'))
+    fetch_stock_daily_hfq_fillna_tspro(ts_code='002770.SZ')
     t2 = time.perf_counter()
     t = t2 - t1
     print(f"times:  --- {t}")
     
+       
     pass
 
 

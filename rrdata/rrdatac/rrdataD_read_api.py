@@ -72,7 +72,7 @@ class RrdataD(object):
             except:
                 sql_query +=  f"{iterms} symbol in ('{instrument}')"
             
-        print(sql_query)
+        #print(sql_query)
         try:
             return pd.read_sql(sql_query, self.engine)
         except Exception as E:
