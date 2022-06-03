@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rrdata"
-version = "0.2.1"
+version = "0.2.2"
 description = ""
 authors = ["romepeng <romepeng@outlook.com>"]
 readme = "README.md"
