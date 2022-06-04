@@ -73,4 +73,4 @@ if __name__ == "__main__":
 
 
    
-    print(RrdataD('stock_day_em_bfq').read(instruments='000792'))
+    print(RrdataD('stock_day_bfq').read(instruments='000792.SZ'))

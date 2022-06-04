@@ -28,6 +28,7 @@ from rrdata.utils.rqDate_trade import  (trade_date_sse,rq_util_get_trade_range,
 from rrdata.utils.rqParameter import PERIODS
 from rrdata.utils.rqTrade_time import   is_trade_time_secs_cn
 from rrdata.common.engine_pgsql import engine
+from rrdata.common.read_df_from_table import read_large_df_from_table
 
 from rrdata.rrdatad.stock.fetch_stock_basic_tspro import  fetch_delist_stock
 from rrdata.rrdatac.rrdataD_read_api import RrdataD
@@ -35,11 +36,9 @@ from rrdata.rrdatad.rrdataD_save_api import RrdataDSave
 
 NList = PERIODS().PERIODS
 N1List = list(map(lambda x: x-1,NList))
-client_rrdata = engine(db_name='rrdata')
-client_rrfactor = engine(db_name='rqalphq')
 
 
-def stock_RT_HH_MA_pre(table_name='stock_day_bfq_adj', N=250):
+def stock_RT_HH_MA_pre(table_name='stock_day_bfq_adj', N=2):
     """caculate i-1 day rt_ma
        prepare to next day  day rs_OH_ma
        迭代， 只算一次， 速度快。
@@ -47,12 +46,11 @@ def stock_RT_HH_MA_pre(table_name='stock_day_bfq_adj', N=250):
     trade_date = rq_util_get_last_tradedate()
     #print(trade_date)
     start_date = rq_util_get_pre_trade_date(trade_date,N)
-    #df = read_sql_from_pg(start_date=start_date, data=\
-    #        "trade_date,open,high,low,close,pre_close,vol,amount,
-    #        adj_factor,code,pct_chg,avg",table_name=table_name, client=client_rrdata)
-    df = RrdataD(table_name).read(count=N) #,fields="trade_date,open,high,low,close,pre_close, \
+    df = read_sql_from_pg(start_date=start_date, data="trade_date,open,high,low,close,pre_close,vol,amount, \
+            adj_factor,code,pct_chg,avg",table_name=table_name, client=engine())
+    #df = RrdataD(table_name).read(count=N) #,fields="trade_date,open,high,low,close,pre_close, \
         #vol,amount, adj_factor,symbol,pct_chg,avg")
-    #print(df)    
+    print(df)    
     delist_code = fetch_delist_stock(trade_date) 
     #print(delist_code)
     #df = pd.read_pickle('/home/rome/.rrdata/data/stock_day_adj_250.pkl')
@@ -269,7 +267,7 @@ def stock_RS_OH_MA_new():
         return df
 
    
-def save_PRS_to_pg(table_name="",data="", client=client_rrfactor):
+def save_PRS_to_pg(table_name="",data="", client=engine()):
     #写入数据，table_name为表名，‘replace’表示如果同名表存在就替换掉
     if isinstance(data, pd.DataFrame):
         try:
@@ -288,8 +286,20 @@ if __name__ == '__main__':
     # new -- date , time 
     # day -- trade_date 
     # TODO
-    update_stock_PRS_day()
+   
+    #update_stock_PRS_day()
     #update_stock_PRS_new()
     #print(is_trade_time_secs_cn())
+    
+    trade_date = rq_util_get_last_tradedate()
+    print(trade_date)
+    start_date = rq_util_get_pre_trade_date(trade_date,10)
+    
+     
+    
+ 
+    #df = RrdataD(table_name).read(count=N) #,fields="trade_date,open,high,low,close,pre_close, \
+        #vol,amount, adj_factor,symbol,pct_chg,avg")
+    #print(df)    
     pass
 

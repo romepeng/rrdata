@@ -1,5 +1,6 @@
 import psycopg2
 from sqlalchemy import create_engine
+from sqlalchemy.pool import QueuePool
 
 from rrdata.utils.rqLogs import rq_util_log_info
 from rrdata.utils.rqSetting import setting
@@ -18,7 +19,7 @@ def engine(driver="psycopg2", db_name="rrdata"):
         #rq_util_log_info(database_uri)
         conn = create_engine(database_uri)
     elif driver == "psycopg2":
-        conn = create_engine(f"postgresql+{driver}://{database_str}/{db_name}")
+        conn = create_engine(f"postgresql+{driver}://{database_str}/{db_name}",pool_size=50, max_overflow=0) #, poolclass=QueuePool)
     return conn
    
 

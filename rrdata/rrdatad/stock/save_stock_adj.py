@@ -3,6 +3,7 @@ from rrdata.rrdatac.rrdataD_read_api import RrdataD
 from rrdata.rrdatad.rrdataD_save_api import RrdataDSave
 from rrdata.utils.rqParameter import startDate
 from rrdata.utils.rqDate_trade import rq_util_get_last_tradedate,rq_util_get_trade_range
+from rrdata.rrdatad.stock.fetch_basic_tusharepro import fetch_delist_stock
 
 
 def save_stock_adjfactor_to_pgsql(start_date=startDate, end_date=None, table_name="stock_adjfactor"):
@@ -31,6 +32,7 @@ def save_stock_adjfactor_to_pgsql(start_date=startDate, end_date=None, table_nam
         print(i)
         try:
             df = pro.query('adj_factor', trade_date=i.replace("-",""))        
+            df = df[~df['ts_code'].isin(fetch_delist_stock())]
             #print(df)
             RrdataDSave(table_name, if_exists='append').save(df)
         except Exception as e:

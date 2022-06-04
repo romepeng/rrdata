@@ -48,6 +48,8 @@ def read_one_row_from_table_check_tscode(ts_code="600519.SH", row="trade_date",t
 
 if __name__ == "__main__":
     
-    read_one_row_from_table_check_tscode(ts_code="000002.SZ",row="trade_date",table_name="stock_day_hfq", con=engine())
-    read_one_row_from_table(row="trade_date",table_name="stock_day_bfq", con=engine())
-    
+    #print(read_one_row_from_table_check_tscode(ts_code="000002.SZ",row="trade_date",table_name="stock_day_hfq", con=engine()))
+    #read_one_row_from_table(row="trade_date",table_name="stock_day_bfq", con=engine())
+    start_date = "2022-05--01"
+    sql = f'SELECT *  FROM stock_day_bfq_adj WHERE trade_date BEETWIN start_date, end_date '
+    print(read_rows_from_table(sql))

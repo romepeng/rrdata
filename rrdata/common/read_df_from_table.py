@@ -36,7 +36,7 @@ def read_large_df_from_table(sql_query, con=engine()):
     for chunk in pd.read_sql_query(sql_query, con, chunksize=5000):
         dfs.append(chunk)
     df = pd.concat(dfs)
-    rq_util_log_info(df())
+    
     return df 
 
 
@@ -55,6 +55,7 @@ def read_sql_tmpfile(query, con=engine()):
 
 
 if __name__ == '__main__':
+    import time
     #for t in ['swl_cons_L1','swl_cons_L2','swl_cons_L3']:
     #    read_df_from_table(t)
 
@@ -62,12 +63,16 @@ if __name__ == '__main__':
     #read_large_df_from_table(sql_query)
     #read_sql_tmpfile(sql_query, engine)
     #read_df_from_table('stock_spot', con=engine(db_name="rrdata"))
-    table_name = "stock_day_test"
-    start_date = "2022-05-11"
-    end_date = "2022-05-17"
+    table_name = "stock_day_bfq_adj"
+    start_date = "2021-04-20"
+    end_date = "2022-05-30"
     sql1 = f"""
-        SELECT ts_code, trade_date, close, chg_pct 
+        SELECT *
         FROM {table_name}
         WHERE trade_date BETWEEN  '{start_date}' AND '{end_date}';
     """
-    read_datas_from_table(sql1)
+    t1 = time.perf_counter()
+    print(read_datas_from_table(sql1))
+    t2 = time.perf_counter()
+    print(f"{t2 - t1} =")
+    

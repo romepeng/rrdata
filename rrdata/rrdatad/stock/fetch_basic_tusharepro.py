@@ -14,7 +14,7 @@ def fetch_delist_stock(trade_date=None):
     if not trade_date:
         trade_date = rq_util_get_last_tradedate().replace('-','')
     df_DD = df_DP[df_DP['delist_date'] <= trade_date]
-    df_DD_code = list(df_DD['code'].values)
+    df_DD_code = list(df_DD['ts_code'].values)
     return df_DD_code
 
 

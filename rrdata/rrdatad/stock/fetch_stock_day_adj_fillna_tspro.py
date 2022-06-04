@@ -10,10 +10,11 @@ from rrdata.utils.rqLogs import rq_util_log_debug, rq_util_log_info, rq_util_log
 from rrdata.utils.rqParameter import startDate
 
 
-def fetch_stock_day_adj_onetradedate_tsro(trade_date=startDate):
+
+def fetch_stock_day_adj_onetradedate_tsro(trade_date=None):
     trade_date = trade_date.replace('-', '') #兼容设置以防日期格式为2001-10-20格式
     lastEx = None
-    retry = 5
+    retry =3
     for _ in range(retry):
         try:
             df_daily=pro.query('daily',trade_date=trade_date)
@@ -28,7 +29,9 @@ def fetch_stock_day_adj_onetradedate_tsro(trade_date=startDate):
             rq_util_log_info("[{}]TuSharePro数据异常: {}, retrying...".format(trade_date, ex))
         else:
             rq_util_log_info("[{}]TuSharePro异常: {}, retried {} times".format(trade_date,lastEx, retry))
-            return None   
+            return None
+    delist_code = fetch_delist_stock(trade_date)
+    df_factor_L = df_factor[~df_factor['ts_code'].isin(delist_code)]
     res=pd.merge(df_factor,df_daily,how='left').sort_values(by='ts_code')
     res['symbol']=res['ts_code'].apply(lambda x:x[:6]) #x[7:9].lower()
     #res['trade_date'] = pd.to_datetime(res['trade_date'], format='%Y%m%d')
@@ -44,7 +47,8 @@ if __name__ == "__main__":
     #print(fetch_stock_list_adj())
     import time
     t1 = time.perf_counter()
-    fetch_stock_day_adj_onetradedate_tsro()
+    print(fetch_stock_day_adj_onetradedate_tsro('2022-06-02'))
+    
     t2 = time.perf_counter()
     t = t2 - t1
     print(f"times:  --- {t}")
